@@ -1,4 +1,5 @@
 <template>
+    <iconify-icon icon="lucide:search"></iconify-icon>
     <RootLayout>
         <RouterView></RouterView>
     </RootLayout>

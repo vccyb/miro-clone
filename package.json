@@ -18,9 +18,10 @@
     "db:migrate:new": "supabase migration new",
     "db:reset": "supabase db reset --linked",
     "supabase:types": "npx supabase gen types typescript --project-id ebyqgbhxjddbodudcjgx --schema public > database/types.ts"
-  }, 
+  },
   "dependencies": {
     "@tailwindcss/vite": "^4.0.8",
+    "iconify-icon": "^2.3.0",
     "pinia": "^3.0.1",
     "vue": "^3.5.13",
     "vue-router": "^4.5.0"

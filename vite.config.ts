@@ -9,7 +9,13 @@ import VueRouter from 'unplugin-vue-router/vite'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [tailwindcss(), VueRouter(), vue(), vueJsx(), vueDevTools()],
+  plugins: [tailwindcss(), VueRouter(), vue({
+    template: {
+      compilerOptions: {
+        isCustomElement: element => element.startsWith('iconify-icon')
+      }
+    }
+  }), vueJsx(), vueDevTools()],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
