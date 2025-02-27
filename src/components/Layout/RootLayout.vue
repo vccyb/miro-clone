@@ -1,6 +1,5 @@
 <template>
-  <div>
-    <h1 class=" bg-purple-400 text-white">RootLayout</h1>
+  <div class="flex justify-center items-center">
     <slot></slot>
   </div>
 </template>
