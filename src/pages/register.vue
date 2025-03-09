@@ -80,7 +80,8 @@ import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { useMessage, NCard, NButton, NForm, NFormItem, NInput, NCheckbox } from 'naive-ui'
 import type { FormRules } from 'naive-ui'
-// import { supabase } from '@/lib/supabaseClient'
+import { supabase } from '@/lib/supabaseClient'
+import { registerFn } from '@/service/auth'
 
 const router = useRouter()
 const message = useMessage()
@@ -117,39 +118,32 @@ const rules: FormRules = {
     ]
 }
 
-
-const handleRegister = () => {
+const handleRegister = async () => {
+    if (!agreeTerms.value) {
+        message.error('请先同意服务条款和隐私政策')
+        return
+    }
+    try {
+        // 校验表单
+        try {
+            await formRef.value?.validate()
+        } catch (error: any) {
+            return message.error('表单校验失败!')
+        }
+        loading.value = true
+        const isRegistered = await registerFn(formValue)
+        if (!isRegistered) {
+            return message.error('注册失败')
+        }
+        message.success('注册成功，请查收邮件完成验证')
+        router.push('/login')
+    } catch (error: any) {
+        message.error(error.message || '注册失败')
+    } finally {
+        loading.value = false
+    }
 
 }
 
-// async function handleRegister() {
-//     if (!agreeTerms.value) {
-//         message.error('请先同意服务条款和隐私政策')
-//         return
-//     }
 
-//     try {
-//         await formRef.value?.validate()
-//         loading.value = true
-
-//         const { error } = await supabase.auth.signUp({
-//             email: formValue.email,
-//             password: formValue.password,
-//             options: {
-//                 data: {
-//                     username: formValue.username
-//                 }
-//             }
-//         })
-
-//         if (error) throw error
-
-//         message.success('注册成功，请查收邮件完成验证')
-//         router.push('/login')
-//     } catch (error: any) {
-//         message.error(error.message || '注册失败')
-//     } finally {
-//         loading.value = false
-//     }
-// }
 </script>

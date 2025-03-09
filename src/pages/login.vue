@@ -1,6 +1,6 @@
 <template>
     <div class="min-h-screen flex items-center justify-centermax-w-[60%]  ">
-        <n-card content-style="padding: 0;"      class="flex  w-[800px] p-0 overflow-hidden shadow-2xl">
+        <n-card content-style="padding: 0;" class="flex  w-[800px] p-0 overflow-hidden shadow-2xl">
             <div class="flex flex-row ">
 
                 <!-- 左侧登录表单 -->
@@ -8,25 +8,15 @@
                     <h2 class="text-2xl font-bold text-gray-800 mb-6">登录</h2>
                     <n-form ref="formRef" :model="formValue" :rules="rules">
                         <n-form-item label="邮箱地址" path="email">
-                            <n-input
-                                v-model:value="formValue.email"
-                                placeholder="请输入邮箱地址"
-                                size="large"
-                            >
+                            <n-input v-model:value="formValue.email" placeholder="请输入邮箱地址" size="large">
                                 <template #prefix>
                                     <iconify-icon icon="material-symbols:mail-outline" />
                                 </template>
                             </n-input>
                         </n-form-item>
                         <n-form-item label="登录密码" path="password">
-                            <n-input
-                                v-model:value="formValue.password"
-                                type="password"
-                                placeholder="请输入登录密码"
-                                size="large"
-                                show-password-on="click"
-                                @keyup.enter="handleLogin"
-                            >
+                            <n-input v-model:value="formValue.password" type="password" placeholder="请输入登录密码"
+                                size="large" show-password-on="click" @keyup.enter="handleLogin">
                                 <template #prefix>
                                     <iconify-icon icon="material-symbols:lock-outline" />
                                 </template>
@@ -100,7 +90,8 @@ import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { useMessage, NCard, NButton, NForm, NFormItem, NInput, NCheckbox } from 'naive-ui'
 import type { FormRules } from 'naive-ui'
-// import { supabase } from '@/lib/supabaseClient'
+import { supabase } from '@/lib/supabaseClient'
+import {loginFn} from '@/service/auth'
 
 const router = useRouter()
 const message = useMessage()
@@ -124,8 +115,27 @@ const rules: FormRules = {
     ]
 }
 
-const handleLogin = () => {
+const handleLogin = async () => {
+    try {
+        // 表单验证
+        try {
+            await formRef.value?.validate()
+        } catch (error: any) {
+            return message.error('请正确输入账号和密码!')
+        }
 
+        loading.value = true
+        const isLogin =  await loginFn(formValue)
+        if(!isLogin){
+            return message.error('账号或密码错误')
+        }   
+        message.success('登录成功')
+        router.push('/')
+    } catch (error: any) {
+
+    } finally {
+        loading.value = false
+    }
 }
 
 
@@ -135,39 +145,4 @@ const handleOAuthLogin = (provider: Provider) => {
 
 }
 
-// async function handleLogin() {
-//     try {
-//         await formRef.value?.validate()
-//         loading.value = true
-
-//         const { error } = await supabase.auth.signInWithPassword({
-//             email: formValue.email,
-//             password: formValue.password
-//         })
-
-//         if (error) throw error
-
-//         message.success('登录成功')
-//         router.push('/')
-//     } catch (error: any) {
-//         message.error(error.message || '登录失败')
-//     } finally {
-//         loading.value = false
-//     }
-// }
-
-// async function handleOAuthLogin(provider: 'github' | 'google') {
-//     try {
-//         const { error } = await supabase.auth.signInWithOAuth({
-//             provider,
-//             options: {
-//                 redirectTo: `${window.location.origin}/`
-//             }
-//         })
-
-//         if (error) throw error
-//     } catch (error: any) {
-//         message.error(error.message || '登录失败')
-//     }
-// }
 </script>
