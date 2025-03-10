@@ -90,8 +90,7 @@ import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { useMessage, NCard, NButton, NForm, NFormItem, NInput, NCheckbox } from 'naive-ui'
 import type { FormRules } from 'naive-ui'
-import { supabase } from '@/lib/supabaseClient'
-import {loginFn} from '@/service/auth'
+import { loginFn, oAuthFn } from '@/service/auth'
 
 const router = useRouter()
 const message = useMessage()
@@ -125,10 +124,10 @@ const handleLogin = async () => {
         }
 
         loading.value = true
-        const isLogin =  await loginFn(formValue)
-        if(!isLogin){
+        const isLogin = await loginFn(formValue)
+        if (!isLogin) { // 登录失败
             return message.error('账号或密码错误')
-        }   
+        }
         message.success('登录成功')
         router.push('/')
     } catch (error: any) {
@@ -141,8 +140,12 @@ const handleLogin = async () => {
 
 type Provider = 'github' | 'google'
 
-const handleOAuthLogin = (provider: Provider) => {
-
+const handleOAuthLogin = async (provider: Provider) => {
+    const isLogin = await oAuthFn(provider)
+    if (!isLogin) {
+        return message.error('登录失败')
+    }
+    router.push('/')
 }
 
 </script>
