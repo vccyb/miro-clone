@@ -32,17 +32,15 @@ export const loginFn = async (formValue: LoginForm) => {
 type Provider = 'google' | 'github'
 export const oAuthFn = async (provider: Provider) => {
     const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: provider,
+        provider,
         options: {
-            redirectTo: `http://localhost:5173/auth/dev/callback`,
-            skipBrowserRedirect: false,
-            queryParams: {
-                // 本地需要强制覆盖掉
-                redirect_uri: 'http://localhost:5173/auth/dev/callback', // 强制 GitHub 使用本地地址
-            },
+            redirectTo: 'http://localhost:5173/auth/callback', // 使用与 GitHub 配置完全一致的 URL
+            // 移除 queryParams 中的覆盖，避免冲突
         }
     })
+
     if (error) {
+        console.error('OAuth error:', error)
         return false
     }
     return true

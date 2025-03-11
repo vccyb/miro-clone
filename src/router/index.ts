@@ -1,5 +1,5 @@
+import { supabase } from '@/lib/supabaseClient'
 import { useAuthStore } from '@/stores/auth'
-import { storeToRefs } from 'pinia'
 import { createRouter, createWebHistory } from 'vue-router'
 import { routes, handleHotUpdate } from 'vue-router/auto-routes'
 
@@ -10,21 +10,28 @@ const router = createRouter({
 
 router.beforeEach(async (to) => {
   const authStore = useAuthStore()
-  await authStore.getSession() //  关键，保证时机
-  const isPublicRoute = ['/login', '/register'].includes(to.path)
-  if (!authStore.user && !isPublicRoute) {
-    return {
-      path: '/login',
-    }
+
+  // 公开路由，包括登录、注册和认证回调
+  const isPublicRoute = ['/login', '/register', '/auth/callback'].includes(to.path)
+
+  // 如果是认证回调页面，直接允许访问
+  if (to.path === '/auth/callback') {
+    return true
   }
 
+  // 获取会话信息
+  await authStore.getSession()
+
+  // 未登录且访问非公开路由，重定向到登录页
+  if (!authStore.user && !isPublicRoute) {
+    return { path: '/login' }
+  }
+
+  // 已登录且访问公开路由，重定向到首页
   if (authStore.user && isPublicRoute) {
-    return {
-      name: '/'
-    }
+    return { path: '/' }
   }
 })
-
 
 if (import.meta.hot) {
   handleHotUpdate(router)
