@@ -34,8 +34,7 @@ export const oAuthFn = async (provider: Provider) => {
     const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-            redirectTo: 'http://localhost:5173/auth/callback', // 使用与 GitHub 配置完全一致的 URL
-            // 移除 queryParams 中的覆盖，避免冲突
+            redirectTo: `${window.location.origin}/auth/callback`,
         }
     })
 
