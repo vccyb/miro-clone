@@ -14,8 +14,6 @@
       </div>
     </div>
 
-
-
     <!-- 过滤和排序选项 -->
     <div class="flex justify-between items-center mb-4">
       <div class="flex items-center space-x-3">
@@ -26,7 +24,7 @@
       </div>
 
       <div class="flex gap-2">
-        <n-button secondary>
+        <n-button :secondary="viewMode !== 'grid'" @click="viewMode = 'grid'">
           <template #icon>
             <svg aria-hidden="true" viewBox="0 0 24 24" fill="none"
               class="c-hdkwsG c-hdkwsG-dvzWZT-size-medium c-hdkwsG-OzWqL-weight-normal">
@@ -37,7 +35,7 @@
             </svg>
           </template>
         </n-button>
-        <n-button secondary>
+        <n-button :secondary="viewMode !== 'list'" @click="viewMode = 'list'">
           <template #icon>
             <svg aria-hidden="true" viewBox="0 0 24 24" fill="none"
               class="c-hdkwsG c-hdkwsG-dvzWZT-size-medium c-hdkwsG-OzWqL-weight-normal">
@@ -51,12 +49,43 @@
           </template>
         </n-button>
       </div>
-
     </div>
 
-    <!-- 表格 -->
-    <n-data-table :columns="columns" :data="tableData" :pagination="pagination" :bordered="false"
+    <!-- 表格视图 -->
+    <n-data-table v-if="viewMode === 'list'" :columns="columns" :data="tableData" :pagination="pagination" :bordered="false"
       :single-line="false" />
+
+    <!-- 网格视图 -->
+    <div v-else class="grid grid-cols-3 gap-6">
+      <div v-for="item in tableData" :key="item.id" 
+           class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer">
+        <!-- 缩略图区域 - 增大尺寸 -->
+        <div class="h-40 bg-gray-50 flex items-center justify-center">
+          <iconify-icon :icon="item.icon || 'material-symbols:dashboard-outline'" width="48" height="48" class="text-gray-400" />
+        </div>
+        
+        <!-- 信息区域 -->
+        <div class="p-5">
+          <div class="flex items-center mb-3">
+            <div>
+              <div class="font-medium text-lg">{{ item.name }}</div>
+              <div class="text-sm text-gray-500">Modified by {{ item.modifiedBy }}, {{ item.modifiedDate }}</div>
+            </div>
+          </div>
+          
+          <div class="flex justify-between items-center mt-2">
+            <div>
+              <span v-if="item.onlineUsers > 0" class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
+                {{ item.onlineUsers }} online
+              </span>
+            </div>
+            <div class="text-xs text-gray-500">
+              Last opened: {{ item.lastOpened || 'N/A' }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -69,6 +98,9 @@ import { logoutFn } from "@/service/auth"
 
 const router = useRouter()
 const message = useMessage()
+
+// 视图模式：list 或 grid
+const viewMode = ref('list')
 
 // 模板数据
 const templates = [
@@ -173,7 +205,6 @@ const tableData = [
     icon: 'material-symbols:sprint',
     lastOpened: 'Today',
     owner: 'chen'
-
   },
   {
     id: 2,
@@ -181,7 +212,9 @@ const tableData = [
     modifiedBy: 'You',
     modifiedDate: 'Yesterday',
     onlineUsers: 2,
-    icon: 'material-symbols:map'
+    icon: 'material-symbols:map',
+    lastOpened: 'Yesterday',
+    owner: 'you'
   },
   {
     id: 3,
@@ -189,7 +222,9 @@ const tableData = [
     modifiedBy: 'Sarah Wang',
     modifiedDate: '3 days ago',
     onlineUsers: 1,
-    icon: 'material-symbols:psychology'
+    icon: 'material-symbols:psychology',
+    lastOpened: '3 days ago',
+    owner: 'sarah'
   }
 ]
 

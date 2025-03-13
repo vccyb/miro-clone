@@ -29,7 +29,8 @@
 
         <!-- 导航菜单 -->
         <nav class="flex-1 overflow-y-auto   ">
-            <n-menu :options="menuOptions" />
+            <n-menu :options="menuOptions"
+                @update:value="(key: string) => toogleMenu(key, menuOptions.find(item => item.key === key)!)" />
         </nav>
 
 
@@ -40,7 +41,7 @@
 import { ref, computed, h } from 'vue'
 import { NInput, NButton, NMenu, NDropdown } from 'naive-ui'
 import { useAuthStore } from '@/stores/auth'
-
+import { useRouter } from 'vue-router'
 const authStore = useAuthStore()
 
 // 用户信息
@@ -69,8 +70,21 @@ const handleUserMenuSelect = (key: string) => {
     }
 }
 
+type MenuOption = {
+    label: string
+    key: string
+    icon?: () => any
+    children?: MenuOption[]
+}
+const router = useRouter()
+
+
+const toogleMenu = (key: string, item: MenuOption) => {
+    router.push(`/${item.key}`)
+}
+
 // 导航菜单选项
-const menuOptions = [
+const menuOptions: MenuOption[] = [
     {
         label: 'Explore',
         key: 'explore',

@@ -3,10 +3,20 @@ import { useAuthStore } from '@/stores/auth'
 import { createRouter, createWebHistory } from 'vue-router'
 import { routes, handleHotUpdate } from 'vue-router/auto-routes'
 
+// 添加重定向路由
+const routesWithRedirect = [
+  {
+    path: '/home',
+    redirect: '/'
+  },
+  ...routes
+]
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
-  routes,
+  routes: routesWithRedirect,
 })
+
 
 router.beforeEach(async (to) => {
   const authStore = useAuthStore()
