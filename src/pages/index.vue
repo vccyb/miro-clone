@@ -51,55 +51,58 @@
       </div>
     </div>
 
-    <!-- 表格视图 -->
-    <n-data-table v-if="viewMode === 'list'" :columns="columns" :data="tableData" :pagination="pagination"
-      :bordered="false" :single-line="false" />
+    <!-- 添加 loading 包装 -->
+    <n-spin :show="loading">
+      <!-- 表格视图 -->
+      <n-data-table v-if="viewMode === 'list'" :loading="loading" :columns="columns" :data="tableData"
+        :pagination="pagination" :bordered="false" :single-line="false" />
 
-    <!-- 网格视图 -->
-    <div v-else class="grid grid-cols-3 gap-6">
-      <div v-for="board in tableData" :key="board.id"
-        class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer">
-        <!-- 缩略图区域 -->
-        <div class="h-50 bg-gray-50 flex items-center justify-center">
-          <template v-if="board.image_url">
-            <img :src="board.image_url" class="w-full h-full object-cover" :alt="board.title" />
-          </template>
-          <template v-else>
-            <iconify-icon icon="material-symbols:dashboard-outline" width="48" height="48" class="text-gray-400" />
-          </template>
-        </div>
-
-        <!-- 信息区域 -->
-        <div class="p-5">
-          <div class="flex items-center mb-3">
-            <div class="flex-1">
-              <div class="font-medium text-lg">{{ board.title }}</div>
-              <div class="text-sm text-gray-500">
-                创建者: {{ board.author_name }}
-              </div>
-            </div>
+      <!-- 网格视图 -->
+      <div v-else class="grid grid-cols-3 gap-6">
+        <div v-for="board in tableData" :key="board.id"
+          class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer">
+          <!-- 缩略图区域 -->
+          <div class="h-50 bg-gray-50 flex items-center justify-center">
+            <template v-if="board.image_url">
+              <img :src="board.image_url" class="w-full h-full object-cover" :alt="board.title" />
+            </template>
+            <template v-else>
+              <iconify-icon icon="material-symbols:dashboard-outline" width="48" height="48" class="text-gray-400" />
+            </template>
           </div>
 
-          <div class="flex justify-between items-center mt-2">
-            <div class="text-xs text-gray-500">
-              创建于: {{ new Date(board.created_at).toLocaleDateString() }}
+          <!-- 信息区域 -->
+          <div class="p-5">
+            <div class="flex items-center mb-3">
+              <div class="flex-1">
+                <div class="font-medium text-lg">{{ board.title }}</div>
+                <div class="text-sm text-gray-500">
+                  创建者: {{ board.author_name }}
+                </div>
+              </div>
             </div>
-            <div class="text-xs text-gray-500">
-              更新于: {{ new Date(board.updated_at).toLocaleDateString() }}
+
+            <div class="flex justify-between items-center mt-2">
+              <div class="text-xs text-gray-500">
+                创建于: {{ new Date(board.created_at).toLocaleDateString() }}
+              </div>
+              <div class="text-xs text-gray-500">
+                更新于: {{ new Date(board.updated_at).toLocaleDateString() }}
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </n-spin>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, h, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { NButton, NSelect, NDataTable, useMessage } from 'naive-ui'
+// 添加 NSpin 到导入
+import { NButton, NSelect, NDataTable, useMessage, NSpin } from 'naive-ui'
 import type { DataTableColumns } from 'naive-ui'
-import { logoutFn } from "@/service/auth"
 
 import { getAllBoards } from '@/service/boards'
 import type { Board } from '@/service/boards'
@@ -112,13 +115,18 @@ const message = useMessage()
 
 const tableData = ref<Board[]>([])
 // 加载数据的方法
+const loading = ref(false)
+
+// 修改 loadBoards 方法
 const loadBoards = async () => {
+  loading.value = true
   try {
     const boards = await getAllBoards()
     tableData.value = boards
   } catch (error) {
-    message.error('加载白板列表失败')
+    message.error(`加载白板列表失败,${error}`)
   } finally {
+    loading.value = false
   }
 }
 
@@ -132,33 +140,6 @@ onMounted(() => {
 const viewMode = ref('list')
 
 // 模板数据
-const templates = [
-  {
-    name: 'Blank board',
-    type: 'blank',
-    image: '/images/templates/blank.svg'
-  },
-  {
-    name: 'Flowchart',
-    type: 'flowchart',
-    image: '/images/templates/flowchart.svg'
-  },
-  {
-    name: 'Mind Map',
-    type: 'mindmap',
-    image: '/images/templates/mindmap.svg'
-  },
-  {
-    name: 'Kanban Framework',
-    type: 'kanban',
-    image: '/images/templates/kanban.svg'
-  },
-  {
-    name: 'From Miroverse',
-    type: 'miroverse',
-    image: '/images/templates/miroverse.svg'
-  }
-]
 
 // 过滤和排序选项
 const filterValue = ref('all')
@@ -285,16 +266,8 @@ const handleCreateNew = () => {
 }
 
 // 处理选择模板
-const handleSelectTemplate = (type: string) => {
-  message.info(`选择了 ${type} 模板`)
-  // 这里可以添加选择模板的逻辑
-}
 
 // 登出功能
-const logout = async () => {
-  await logoutFn()
-  router.push('/login')
-}
 </script>
 
 <style scoped></style>
