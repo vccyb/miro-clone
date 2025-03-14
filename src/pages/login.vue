@@ -30,7 +30,7 @@
                             </n-button>
                         </div>
 
-                        <n-button type="primary" block size="large" @click="handleLogin" :loading="loading">
+                        <n-button type="primary" block size="large" :loading="loading" @click="handleLogin">
                             登录
                         </n-button>
 

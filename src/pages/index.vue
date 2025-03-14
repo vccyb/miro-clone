@@ -52,35 +52,40 @@
     </div>
 
     <!-- 表格视图 -->
-    <n-data-table v-if="viewMode === 'list'" :columns="columns" :data="tableData" :pagination="pagination" :bordered="false"
-      :single-line="false" />
+    <n-data-table v-if="viewMode === 'list'" :columns="columns" :data="tableData" :pagination="pagination"
+      :bordered="false" :single-line="false" />
 
     <!-- 网格视图 -->
     <div v-else class="grid grid-cols-3 gap-6">
-      <div v-for="item in tableData" :key="item.id" 
-           class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer">
-        <!-- 缩略图区域 - 增大尺寸 -->
-        <div class="h-40 bg-gray-50 flex items-center justify-center">
-          <iconify-icon :icon="item.icon || 'material-symbols:dashboard-outline'" width="48" height="48" class="text-gray-400" />
+      <div v-for="board in tableData" :key="board.id"
+        class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer">
+        <!-- 缩略图区域 -->
+        <div class="h-50 bg-gray-50 flex items-center justify-center">
+          <template v-if="board.image_url">
+            <img :src="board.image_url" class="w-full h-full object-cover" :alt="board.title" />
+          </template>
+          <template v-else>
+            <iconify-icon icon="material-symbols:dashboard-outline" width="48" height="48" class="text-gray-400" />
+          </template>
         </div>
-        
+
         <!-- 信息区域 -->
         <div class="p-5">
           <div class="flex items-center mb-3">
-            <div>
-              <div class="font-medium text-lg">{{ item.name }}</div>
-              <div class="text-sm text-gray-500">Modified by {{ item.modifiedBy }}, {{ item.modifiedDate }}</div>
+            <div class="flex-1">
+              <div class="font-medium text-lg">{{ board.title }}</div>
+              <div class="text-sm text-gray-500">
+                创建者: {{ board.author_name }}
+              </div>
             </div>
           </div>
-          
+
           <div class="flex justify-between items-center mt-2">
-            <div>
-              <span v-if="item.onlineUsers > 0" class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
-                {{ item.onlineUsers }} online
-              </span>
+            <div class="text-xs text-gray-500">
+              创建于: {{ new Date(board.created_at).toLocaleDateString() }}
             </div>
             <div class="text-xs text-gray-500">
-              Last opened: {{ item.lastOpened || 'N/A' }}
+              更新于: {{ new Date(board.updated_at).toLocaleDateString() }}
             </div>
           </div>
         </div>
@@ -90,14 +95,38 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, h } from 'vue'
+import { ref, reactive, h, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { NButton, NSelect, NDataTable, useMessage } from 'naive-ui'
 import type { DataTableColumns } from 'naive-ui'
 import { logoutFn } from "@/service/auth"
 
+import { getAllBoards } from '@/service/boards'
+import type { Board } from '@/service/boards'
+
 const router = useRouter()
 const message = useMessage()
+
+
+
+
+const tableData = ref<Board[]>([])
+// 加载数据的方法
+const loadBoards = async () => {
+  try {
+    const boards = await getAllBoards()
+    tableData.value = boards
+  } catch (error) {
+    message.error('加载白板列表失败')
+  } finally {
+  }
+}
+
+onMounted(() => {
+  loadBoards()
+})
+
+
 
 // 视图模式：list 或 grid
 const viewMode = ref('list')
@@ -156,77 +185,83 @@ const sortOptions = [
 ]
 
 // 表格列定义
-const columns = [
+const columns: DataTableColumns<Board> = [
   {
-    title: 'Name',
-    key: 'name',
-    render(row: any) {
+    title: '白板名称',
+    key: 'title',
+    render(row: Board) {
       return h('div', { class: 'flex items-center' }, [
-        h('div', { class: 'w-10 h-10 mr-3 bg-gray-100 rounded flex items-center justify-center' }, [
-          h('iconify-icon', { icon: row.icon || 'material-symbols:dashboard-outline' })
+        h('div', { class: 'w-10 h-10 mr-3 bg-gray-100 rounded flex items-center justify-center overflow-hidden' }, [
+          row.image_url
+            ? h('img', {
+              src: row.image_url,
+              class: 'w-full h-full object-cover'
+            })
+            : h('iconify-icon', {
+              icon: 'material-symbols:dashboard-outline',
+              class: 'text-gray-400'
+            })
         ]),
         h('div', [
-          h('div', { class: 'font-medium' }, row.name),
-          h('div', { class: 'text-xs text-gray-500' }, `Modified by ${row.modifiedBy}, ${row.modifiedDate}`)
+          h('div', { class: 'font-medium' }, row.title),
+          h('div', { class: 'text-xs text-gray-500' }, `创建者: ${row.author_name}`)
         ])
       ])
     }
   },
   {
-    title: 'Online users',
-    key: 'onlineUsers',
-    width: 150,
-    render(row: any) {
-      return h('div', { class: 'flex justify-start' }, [
-        row.onlineUsers > 0
-          ? h('div', { class: 'bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded' }, `${row.onlineUsers} online`)
-          : null
-      ])
+    title: '创建时间',
+    key: 'created_at',
+    render(row: Board) {
+      return new Date(row.created_at).toLocaleDateString()
     }
   },
   {
-    title: 'Last Opened',
-    key: 'lastOpened',
+    title: '最后更新',
+    key: 'updated_at',
+    render(row: Board) {
+      return new Date(row.updated_at).toLocaleDateString()
+    }
   },
   {
-    title: 'Owner',
-    key: 'owner'
+    title: '创建者',
+    key: 'author_name'
   }
 ]
 
 // 表格数据
-const tableData = [
-  {
-    id: 1,
-    name: 'Sprint Planning',
-    modifiedBy: 'Job Chen',
-    modifiedDate: 'Today',
-    onlineUsers: 100,
-    icon: 'material-symbols:sprint',
-    lastOpened: 'Today',
-    owner: 'chen'
-  },
-  {
-    id: 2,
-    name: 'Product Roadmap',
-    modifiedBy: 'You',
-    modifiedDate: 'Yesterday',
-    onlineUsers: 2,
-    icon: 'material-symbols:map',
-    lastOpened: 'Yesterday',
-    owner: 'you'
-  },
-  {
-    id: 3,
-    name: 'UX Research',
-    modifiedBy: 'Sarah Wang',
-    modifiedDate: '3 days ago',
-    onlineUsers: 1,
-    icon: 'material-symbols:psychology',
-    lastOpened: '3 days ago',
-    owner: 'sarah'
-  }
-]
+// const tableData = [
+//   {
+//     id: 1,
+//     name: 'Sprint Planning',
+//     modifiedBy: 'Job Chen',
+//     modifiedDate: 'Today',
+//     onlineUsers: 100,
+//     icon: 'material-symbols:sprint',
+//     lastOpened: 'Today',
+//     owner: 'chen'
+//   },
+//   {
+//     id: 2,
+//     name: 'Product Roadmap',
+//     modifiedBy: 'You',
+//     modifiedDate: 'Yesterday',
+//     onlineUsers: 2,
+//     icon: 'material-symbols:map',
+//     lastOpened: 'Yesterday',
+//     owner: 'you'
+//   },
+//   {
+//     id: 3,
+//     name: 'UX Research',
+//     modifiedBy: 'Sarah Wang',
+//     modifiedDate: '3 days ago',
+//     onlineUsers: 1,
+//     icon: 'material-symbols:psychology',
+//     lastOpened: '3 days ago',
+//     owner: 'sarah'
+//   }
+// ]
 
 // 分页设置
 const pagination = reactive({

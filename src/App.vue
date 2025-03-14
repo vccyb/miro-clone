@@ -13,7 +13,6 @@
 <script setup lang="ts">
 import RootLayout from '@/components/Layout/RootLayout.vue'
 import AuthLayout from '@/components/Layout/AuthLayout.vue'
-import { supabase } from '@/lib/supabaseClient'
 import { NMessageProvider } from 'naive-ui'
 import { onMounted, computed } from 'vue'
 import { useAuthStore } from '@/stores/auth'

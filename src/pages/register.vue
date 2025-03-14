@@ -46,7 +46,7 @@
                             </n-checkbox>
                         </div>
 
-                        <n-button type="primary" block size="large" @click="handleRegister" :loading="loading">
+                        <n-button type="primary" block size="large" :loading="loading" @click="handleRegister">
                             注册
                         </n-button>
 
