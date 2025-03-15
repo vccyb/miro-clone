@@ -1,12 +1,11 @@
 import { supabase } from "@/lib/supabaseClient";
 import type { RegisterForm, LoginForm } from "@/types/AuthForm";
 
-import { useAuthStore } from "@/stores/auth";
 
 
 
 export const registerFn = async (formValue: RegisterForm) => {
-    const { data, error } = await supabase.auth.signUp({
+    const { error } = await supabase.auth.signUp({
         email: formValue.email,
         password: formValue.password,
     })
@@ -18,7 +17,7 @@ export const registerFn = async (formValue: RegisterForm) => {
 }
 
 export const loginFn = async (formValue: LoginForm) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { error } = await supabase.auth.signInWithPassword({
         email: formValue.email,
         password: formValue.password
     })
@@ -31,7 +30,7 @@ export const loginFn = async (formValue: LoginForm) => {
 
 type Provider = 'google' | 'github'
 export const oAuthFn = async (provider: Provider) => {
-    const { data, error } = await supabase.auth.signInWithOAuth({
+    const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
             redirectTo: `${window.location.origin}/auth/callback`,

@@ -38,4 +38,6 @@ const userInitials = computed(() => {
     const name = username.value
     return name.substring(0, 2).toUpperCase()
 })
+
+
 </script>
