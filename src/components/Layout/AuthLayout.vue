@@ -6,4 +6,5 @@
 
 <script setup lang="ts">
 // 简单的居中布局，不需要额外逻辑
+
 </script>

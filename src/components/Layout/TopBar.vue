@@ -8,23 +8,26 @@
 
         <!-- 右侧操作区 -->
         <div class="ml-auto flex items-center space-x-4">
-
-            <!-- 用户头像 -->
-            <div v-if="avatarUrl" class="w-8 h-8 rounded-full overflow-hidden cursor-pointer">
-                <img :src="avatarUrl" alt="用户头像" class="w-full h-full object-cover" />
-            </div>
-            <div v-else class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center cursor-pointer">
-                <span class="text-sm font-medium">{{ userInitials }}</span>
-            </div>
+            <!-- 用户头像和下拉菜单 -->
+            <n-dropdown :options="dropdownOptions" @select="handleSelect" trigger="click">
+                <div v-if="avatarUrl" class="w-8 h-8 rounded-full overflow-hidden cursor-pointer">
+                    <img :src="avatarUrl" alt="用户头像" class="w-full h-full object-cover" />
+                </div>
+                <div v-else class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center cursor-pointer">
+                    <span class="text-sm font-medium">{{ userInitials }}</span>
+                </div>
+            </n-dropdown>
         </div>
     </header>
 </template>
 
 <script setup lang="ts">
-import { NButton } from 'naive-ui'
-import { computed } from 'vue'
+import { NButton, NDropdown } from 'naive-ui'
+import { computed, h } from 'vue'
 import { useAuthStore } from '@/stores/auth'
-
+import { useRouter } from 'vue-router'
+import { logoutFn } from '@/service/auth'
+const router = useRouter()
 const authStore = useAuthStore()
 
 // 获取用户头像URL
@@ -39,5 +42,27 @@ const userInitials = computed(() => {
     return name.substring(0, 2).toUpperCase()
 })
 
+// 下拉菜单选项
+const dropdownOptions = [
+    {
+        label: '个人中心',
+        key: 'profile',
+        icon: () => h('iconify-icon', { icon: 'mdi:account' })
+    },
+    {
+        label: '注销',
+        key: 'logout',
+        icon: () => h('iconify-icon', { icon: 'mdi:logout' })
+    }
+]
 
+// 处理菜单选择
+const handleSelect = async (key: string) => {
+    if (key === 'logout') {
+        await logoutFn()
+        router.push('/login')
+    } else if (key === 'profile') {
+        router.push('/profile')
+    }
+}
 </script>

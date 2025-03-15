@@ -13,7 +13,7 @@ export const getAllBoards = async (): Promise<Board[]> => {
     if (!authStore.user) return []
     const { data, error } = await supabase.from('boards')
         .select('*')
-        .eq('author_id', authStore.user.id)
+        // .eq('author_id', authStore.user.id)
         .order('updated_at', {
             ascending: false
         })

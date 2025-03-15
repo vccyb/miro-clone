@@ -3,7 +3,7 @@
     <!-- 页面标题 -->
     <div class="flex justify-between items-center mb-6">
       <h1 class="text-2xl font-bold">Boards in this team</h1>
-      <div class="flex space-x-3">
+      <div class="flex space-x-4">
         <n-button @click="router.push('/templates')">Explore templates</n-button>
         <n-button type="primary" @click="handleCreateNew">
           <template #icon>
@@ -58,39 +58,52 @@
         :pagination="pagination" :bordered="false" :single-line="false" />
 
       <!-- 网格视图 -->
-      <div v-else class="grid grid-cols-3 gap-6">
-        <div v-for="board in tableData" :key="board.id"
-          class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer">
-          <!-- 缩略图区域 -->
-          <div class="h-50 bg-gray-50 flex items-center justify-center">
-            <template v-if="board.image_url">
-              <img :src="board.image_url" class="w-full h-full object-cover" :alt="board.title" />
-            </template>
-            <template v-else>
-              <iconify-icon icon="material-symbols:dashboard-outline" width="48" height="48" class="text-gray-400" />
-            </template>
-          </div>
+      <div v-else>
+        <div class="grid grid-cols-3 gap-6">
+          <div v-for="board in paginatedGridData" :key="board.id"
+            class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer">
+            <!-- 缩略图区域 -->
+            <div class="h-50 bg-gray-50 flex items-center justify-center">
+              <template v-if="board.image_url">
+                <img :src="board.image_url" class="w-full h-full object-cover" :alt="board.title" />
+              </template>
+              <template v-else>
+                <iconify-icon icon="material-symbols:dashboard-outline" width="48" height="48" class="text-gray-400" />
+              </template>
+            </div>
 
-          <!-- 信息区域 -->
-          <div class="p-5">
-            <div class="flex items-center mb-3">
-              <div class="flex-1">
-                <div class="font-medium text-lg">{{ board.title }}</div>
-                <div class="text-sm text-gray-500">
-                  创建者: {{ board.author_name }}
+            <!-- 信息区域 -->
+            <div class="p-5">
+              <div class="flex items-center mb-3">
+                <div class="flex-1">
+                  <div class="font-medium text-lg">{{ board.title }}</div>
+                  <div class="text-sm text-gray-500">
+                    创建者: {{ board.author_name }}
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex justify-between items-center mt-2">
+                <div class="text-xs text-gray-500">
+                  创建于: {{ new Date(board.created_at).toLocaleDateString() }}
+                </div>
+                <div class="text-xs text-gray-500">
+                  更新于: {{ new Date(board.updated_at).toLocaleDateString() }}
                 </div>
               </div>
             </div>
-
-            <div class="flex justify-between items-center mt-2">
-              <div class="text-xs text-gray-500">
-                创建于: {{ new Date(board.created_at).toLocaleDateString() }}
-              </div>
-              <div class="text-xs text-gray-500">
-                更新于: {{ new Date(board.updated_at).toLocaleDateString() }}
-              </div>
-            </div>
           </div>
+        </div>
+        
+        <!-- 网格视图的分页控件 -->
+        <div class="flex justify-center mt-6">
+          <n-pagination v-model:page="gridPagination.page" 
+                       :page-count="gridPagination.pageCount" 
+                       :page-size="gridPagination.pageSize"
+                       :page-sizes="gridPagination.pageSizes"
+                       :show-size-picker="true"
+                       @update:page="gridPagination.onChange"
+                       @update:page-size="gridPagination.onUpdatePageSize" />
         </div>
       </div>
     </n-spin>
@@ -98,10 +111,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, h, onMounted } from 'vue'
+import { ref, reactive, h, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
-// 添加 NSpin 到导入
-import { NButton, NSelect, NDataTable, useMessage, NSpin } from 'naive-ui'
+// 添加 NPagination 到导入
+import { NButton, NSelect, NDataTable, useMessage, NSpin, NPagination } from 'naive-ui'
 import type { DataTableColumns } from 'naive-ui'
 
 import { getAllBoards } from '@/service/boards'
@@ -243,6 +256,28 @@ const columns: DataTableColumns<Board> = [
 //     owner: 'sarah'
 //   }
 // ]
+
+// 网格视图分页设置
+const gridPagination = reactive({
+  page: 1,
+  pageSize: 6, // 每页显示6个卡片
+  pageCount: computed(() => Math.ceil(tableData.value.length / gridPagination.pageSize)),
+  pageSizes: [6, 9, 12, 15],
+  onChange: (page: number) => {
+    gridPagination.page = page
+  },
+  onUpdatePageSize: (pageSize: number) => {
+    gridPagination.pageSize = pageSize
+    gridPagination.page = 1
+  }
+})
+
+// 计算当前页的网格数据
+const paginatedGridData = computed(() => {
+  const start = (gridPagination.page - 1) * gridPagination.pageSize
+  const end = start + gridPagination.pageSize
+  return tableData.value.slice(start, end)
+})
 
 // 分页设置
 const pagination = reactive({
