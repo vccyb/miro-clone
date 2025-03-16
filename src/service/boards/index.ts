@@ -5,18 +5,65 @@ import type { Database } from "../../../database/types";
 export type Board = Database['public']['Tables']['boards']['Row']
 export type InsertBoard = Database['public']['Tables']['boards']['Insert'];
 export type UpdateBoard = Database['public']['Tables']['boards']['Update'];
+
+// 定义排序类型
+export type SortOption = 'last-created' | 'last-modified' | 'name-asc' | 'name-desc';
+// 定义所有者筛选类型
+export type OwnerFilter = 'anyone' | 'me' | 'others';
+
+// 定义查询参数接口
+export interface BoardQueryParams {
+    sortBy?: SortOption;
+    owner?: OwnerFilter;
+    filter?: string;
+    search?: string; // 添加搜索参数
+}
+
 /**
  * 获取当前用户所有的board
+ * @param params 查询参数，包含排序方式、筛选条件和搜索关键词
  */
-export const getAllBoards = async (): Promise<Board[]> => {
+export const getAllBoards = async (params: BoardQueryParams = {}): Promise<Board[]> => {
     const authStore = useAuthStore()
     if (!authStore.user) return []
-    const { data, error } = await supabase.from('boards')
-        .select('*')
-        // .eq('author_id', authStore.user.id)
-        .order('updated_at', {
-            ascending: false
-        })
+
+    let query = supabase.from('boards').select('*')
+
+    // 根据所有者筛选
+    if (params.owner) {
+        const currentUserId = authStore.user.id
+        if (params.owner === 'me') {
+            query = query.eq('author_id', currentUserId)
+        } else if (params.owner === 'others') {
+            query = query.neq('author_id', currentUserId)
+        }
+    }
+
+    // 添加搜索条件
+    if (params.search && params.search.trim() !== '') {
+        // 使用 ilike 进行模糊搜索，% 表示任意字符
+        query = query.ilike('title', `%${params.search.trim()}%`)
+    }
+
+    // 根据排序选项设置排序方式
+    switch (params.sortBy) {
+        case 'last-created':
+            query = query.order('created_at', { ascending: false })
+            break
+        case 'last-modified':
+            query = query.order('updated_at', { ascending: false })
+            break
+        case 'name-asc':
+            query = query.order('title', { ascending: true })
+            break
+        case 'name-desc':
+            query = query.order('title', { ascending: false })
+            break
+        default:
+            query = query.order('updated_at', { ascending: false })
+    }
+
+    const { data, error } = await query
 
     if (error) {
         console.error('获取用户白板列表失败:', error)

@@ -23,31 +23,38 @@
         <n-select v-model:value="sortValue" :options="sortOptions" size="small" style="width: 150px" />
       </div>
 
-      <div class="flex gap-2">
-        <n-button :secondary="viewMode !== 'grid'" @click="viewMode = 'grid'">
-          <template #icon>
-            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none"
-              class="c-hdkwsG c-hdkwsG-dvzWZT-size-medium c-hdkwsG-OzWqL-weight-normal">
-              <path stroke="currentColor" stroke-linecap="round" stroke-width="var(--svg-stroke-width)"
-                d="M9.5 14h-5a.5.5 0 0 0-.5.5v5a.5.5 0 0 0 .5.5h5a.5.5 0 0 0 .5-.5v-5a.5.5 0 0 0-.5-.5ZM19.5 14h-5a.5.5 0 0 0-.5.5v5a.5.5 0 0 0 .5.5h5a.5.5 0 0 0 .5-.5v-5a.5.5 0 0 0-.5-.5ZM9.5 4h-5a.5.5 0 0 0-.5.5v5a.5.5 0 0 0 .5.5h5a.5.5 0 0 0 .5-.5v-5a.5.5 0 0 0-.5-.5ZM19.5 4h-5a.5.5 0 0 0-.5.5v5a.5.5 0 0 0 .5.5h5a.5.5 0 0 0 .5-.5v-5a.5.5 0 0 0-.5-.5Z">
-              </path>
-              <path stroke="currentColor" stroke-width="var(--svg-stroke-width)" d="M10 10v.0001"></path>
-            </svg>
-          </template>
-        </n-button>
-        <n-button :secondary="viewMode !== 'list'" @click="viewMode = 'list'">
-          <template #icon>
-            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none"
-              class="c-hdkwsG c-hdkwsG-dvzWZT-size-medium c-hdkwsG-OzWqL-weight-normal">
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                stroke-width="var(--svg-stroke-width)" d="M9 5h12m-12 7h12m-12 7h12"></path>
-              <path fill="currentColor"
-                d="M5 12c0 .8284-.6716 1.5-1.5 1.5s-1.5-.6716-1.5-1.5.6716-1.5 1.5-1.5 1.5.6716 1.5 1.5ZM5 19c0 .8284-.6716 1.5-1.5 1.5s-1.5-.6716-1.5-1.5.6716-1.5 1.5-1.5 1.5.6716 1.5 1.5ZM5 5c0 .8284-.6716 1.5-1.5 1.5s-1.5-.6716-1.5-1.5.6716-1.5 1.5-1.5 1.5.6716 1.5 1.5Z">
-              </path>
-              <path stroke="currentColor" stroke-width="var(--svg-stroke-width)" d="M12 12v.0001"></path>
-            </svg>
-          </template>
-        </n-button>
+      <!-- 添加搜索框和搜索按钮 -->
+      <div class="flex items-center gap-2">
+        <n-input v-model:value="searchQuery" placeholder="搜索白板..." size="medium" style="width: 200px"
+          @keyup.enter="handleSearch" />
+        <n-button size="medium" @click="handleSearch">搜索</n-button>
+
+        <div class="flex gap-2 ml-2">
+          <n-button :secondary="viewMode !== 'grid'" @click="viewMode = 'grid'">
+            <template #icon>
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none"
+                class="c-hdkwsG c-hdkwsG-dvzWZT-size-medium c-hdkwsG-OzWqL-weight-normal">
+                <path stroke="currentColor" stroke-linecap="round" stroke-width="var(--svg-stroke-width)"
+                  d="M9.5 14h-5a.5.5 0 0 0-.5.5v5a.5.5 0 0 0 .5.5h5a.5.5 0 0 0 .5-.5v-5a.5.5 0 0 0-.5-.5ZM19.5 14h-5a.5.5 0 0 0-.5.5v5a.5.5 0 0 0 .5.5h5a.5.5 0 0 0 .5-.5v-5a.5.5 0 0 0-.5-.5ZM9.5 4h-5a.5.5 0 0 0-.5.5v5a.5.5 0 0 0 .5.5h5a.5.5 0 0 0 .5-.5v-5a.5.5 0 0 0-.5-.5ZM19.5 4h-5a.5.5 0 0 0-.5.5v5a.5.5 0 0 0 .5.5h5a.5.5 0 0 0 .5-.5v-5a.5.5 0 0 0-.5-.5Z">
+                </path>
+                <path stroke="currentColor" stroke-width="var(--svg-stroke-width)" d="M10 10v.0001"></path>
+              </svg>
+            </template>
+          </n-button>
+          <n-button :secondary="viewMode !== 'list'" @click="viewMode = 'list'">
+            <template #icon>
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none"
+                class="c-hdkwsG c-hdkwsG-dvzWZT-size-medium c-hdkwsG-OzWqL-weight-normal">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                  stroke-width="var(--svg-stroke-width)" d="M9 5h12m-12 7h12m-12 7h12"></path>
+                <path fill="currentColor"
+                  d="M5 12c0 .8284-.6716 1.5-1.5 1.5s-1.5-.6716-1.5-1.5.6716-1.5 1.5-1.5 1.5.6716 1.5 1.5ZM5 19c0 .8284-.6716 1.5-1.5 1.5s-1.5-.6716-1.5-1.5.6716-1.5 1.5-1.5 1.5.6716 1.5 1.5ZM5 5c0 .8284-.6716 1.5-1.5 1.5s-1.5-.6716-1.5-1.5.6716-1.5 1.5-1.5 1.5.6716 1.5 1.5Z">
+                </path>
+                <path stroke="currentColor" stroke-width="var(--svg-stroke-width)" d="M12 12v.0001"></path>
+              </svg>
+            </template>
+          </n-button>
+        </div>
       </div>
     </div>
 
@@ -94,16 +101,12 @@
             </div>
           </div>
         </div>
-        
+
         <!-- 网格视图的分页控件 -->
         <div class="flex justify-center mt-6">
-          <n-pagination v-model:page="gridPagination.page" 
-                       :page-count="gridPagination.pageCount" 
-                       :page-size="gridPagination.pageSize"
-                       :page-sizes="gridPagination.pageSizes"
-                       :show-size-picker="true"
-                       @update:page="gridPagination.onChange"
-                       @update:page-size="gridPagination.onUpdatePageSize" />
+          <n-pagination v-model:page="gridPagination.page" :page-count="gridPagination.pageCount"
+            :page-size="gridPagination.pageSize" :page-sizes="gridPagination.pageSizes" :show-size-picker="true"
+            @update:page="gridPagination.onChange" @update:page-size="gridPagination.onUpdatePageSize" />
         </div>
       </div>
     </n-spin>
@@ -111,54 +114,29 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, h, onMounted, computed } from 'vue'
+import { ref, reactive, h, onMounted, computed, watch, type ComputedRef } from 'vue'
 import { useRouter } from 'vue-router'
-// 添加 NPagination 到导入
-import { NButton, NSelect, NDataTable, useMessage, NSpin, NPagination } from 'naive-ui'
+import { NButton, NSelect, NDataTable, useMessage, NSpin, NPagination, NInput } from 'naive-ui'
 import type { DataTableColumns } from 'naive-ui'
 
-import { getAllBoards } from '@/service/boards'
+import { getAllBoards, type SortOption, type OwnerFilter, type BoardQueryParams } from '@/service/boards'
 import type { Board } from '@/service/boards'
 
 const router = useRouter()
 const message = useMessage()
 
-
-
-
 const tableData = ref<Board[]>([])
 // 加载数据的方法
 const loading = ref(false)
 
-// 修改 loadBoards 方法
-const loadBoards = async () => {
-  loading.value = true
-  try {
-    const boards = await getAllBoards()
-    tableData.value = boards
-  } catch (error) {
-    message.error(`加载白板列表失败,${error}`)
-  } finally {
-    loading.value = false
-  }
-}
-
-onMounted(() => {
-  loadBoards()
-})
-
-
-
 // 视图模式：list 或 grid
 const viewMode = ref('list')
-
-// 模板数据
 
 // 过滤和排序选项
 const filterValue = ref('all')
 const filterOptions = [
   { label: 'All boards', value: 'all' },
-  { label: 'Recent boards', value: 'recent' },
+  // 移除 Recent boards 选项
   { label: 'Starred boards', value: 'starred' }
 ]
 
@@ -169,14 +147,56 @@ const ownerOptions = [
   { label: 'Owned by others', value: 'others' }
 ]
 
-const sortValue = ref('last-opened')
+// 修改默认排序值和排序选项
+const sortValue = ref<string>('last-modified')
 const sortOptions = [
-  { label: 'Last opened', value: 'last-opened' },
+  // 移除 Last opened 选项
   { label: 'Last created', value: 'last-created' },
   { label: 'Last modified', value: 'last-modified' },
   { label: 'Name A-Z', value: 'name-asc' },
   { label: 'Name Z-A', value: 'name-desc' }
 ]
+
+// 添加搜索相关的状态
+const searchQuery = ref('')
+
+// 修改 loadBoards 方法，使用 BoardQueryParams 对象
+const loadBoards = async () => {
+  loading.value = true
+  try {
+    // 构建查询参数对象
+    const params: BoardQueryParams = {
+      sortBy: sortValue.value as SortOption,
+      owner: ownerValue.value as OwnerFilter,
+      filter: filterValue.value,
+      search: searchQuery.value // 添加搜索参数
+    }
+
+    // 将参数对象传递给 getAllBoards
+    const boards = await getAllBoards(params)
+    tableData.value = boards
+  } catch (error) {
+    message.error(`加载白板列表失败,${error}`)
+  } finally {
+    loading.value = false
+  }
+}
+
+// 监听排序值和筛选值变化，重新加载数据
+watch([sortValue, ownerValue, filterValue], () => {
+  loadBoards()
+})
+
+
+const handleSearch = () => {
+  loadBoards()
+}
+
+onMounted(() => {
+  loadBoards()
+})
+
+
 
 // 表格列定义
 const columns: DataTableColumns<Board> = [
@@ -223,42 +243,18 @@ const columns: DataTableColumns<Board> = [
   }
 ]
 
-// 表格数据
-// const tableData = [
-//   {
-//     id: 1,
-//     name: 'Sprint Planning',
-//     modifiedBy: 'Job Chen',
-//     modifiedDate: 'Today',
-//     onlineUsers: 100,
-//     icon: 'material-symbols:sprint',
-//     lastOpened: 'Today',
-//     owner: 'chen'
-//   },
-//   {
-//     id: 2,
-//     name: 'Product Roadmap',
-//     modifiedBy: 'You',
-//     modifiedDate: 'Yesterday',
-//     onlineUsers: 2,
-//     icon: 'material-symbols:map',
-//     lastOpened: 'Yesterday',
-//     owner: 'you'
-//   },
-//   {
-//     id: 3,
-//     name: 'UX Research',
-//     modifiedBy: 'Sarah Wang',
-//     modifiedDate: '3 days ago',
-//     onlineUsers: 1,
-//     icon: 'material-symbols:psychology',
-//     lastOpened: '3 days ago',
-//     owner: 'sarah'
-//   }
-// ]
 
 // 网格视图分页设置
-const gridPagination = reactive({
+interface GridPagination {
+  page: number;
+  pageSize: number;
+  pageCount: number;
+  pageSizes: number[];
+  onChange: (page: number) => void;
+  onUpdatePageSize: (pageSize: number) => void;
+}
+
+const gridPagination: GridPagination = reactive({
   page: 1,
   pageSize: 6, // 每页显示6个卡片
   pageCount: computed(() => Math.ceil(tableData.value.length / gridPagination.pageSize)),
