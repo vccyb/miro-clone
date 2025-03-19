@@ -68,15 +68,32 @@
       <div v-else>
         <div class="grid grid-cols-3 gap-6">
           <div v-for="board in paginatedGridData" :key="board.id"
-            class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer">
+            class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer group">
             <!-- 缩略图区域 -->
-            <div class="h-50 bg-gray-50 flex items-center justify-center">
+            <div class="h-50 bg-gray-50 flex items-center justify-center relative">
               <template v-if="board.image_url">
                 <img :src="board.image_url" class="w-full h-full object-cover" :alt="board.title" />
               </template>
               <template v-else>
                 <iconify-icon icon="material-symbols:dashboard-outline" width="48" height="48" class="text-gray-400" />
               </template>
+
+              <!-- 修复按钮样式和点击问题 -->
+              <div
+                class="absolute top-2 right-2 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                <div class="bg-white/80 rounded-full shadow-sm w-8 h-8 flex items-center justify-center">
+                  <FavoriteButton :board-id="board.id" @toggle="handleFavoriteToggle" />
+                </div>
+                <div class="bg-white/80 rounded-full shadow-sm w-8 h-8 flex items-center justify-center">
+                  <MoreMenu :board-id="board.id" @rename="handleRename" @favorite="handleFavorite"
+                    @delete="handleDelete" />
+                </div>
+              </div>
+
+              <!-- 修改遮罩层，确保不会阻挡点击事件 -->
+              <div
+                class="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+              </div>
             </div>
 
             <!-- 信息区域 -->
@@ -116,11 +133,17 @@
 <script setup lang="ts">
 import { ref, reactive, h, onMounted, computed, watch, type ComputedRef } from 'vue'
 import { useRouter } from 'vue-router'
-import { NButton, NSelect, NDataTable, useMessage, NSpin, NPagination, NInput } from 'naive-ui'
+import { NButton, NSelect, NDataTable, useMessage, NSpin, NPagination, NInput, useDialog } from 'naive-ui'
 import type { DataTableColumns } from 'naive-ui'
 
-import { getAllBoards, type SortOption, type OwnerFilter, type BoardQueryParams } from '@/service/boards'
+import { getAllBoards, createBoard, deleteBoard, type SortOption, type OwnerFilter, type BoardQueryParams } from '@/service/boards'
 import type { Board } from '@/service/boards'
+// 导入编码工具函数
+import { encodeId } from '../utils/encoding'
+
+// 导入自定义组件
+import FavoriteButton from '@/components/BoardActions/FavoriteButton.vue'
+import MoreMenu from '@/components/BoardActions/MoreMenu.vue'
 
 const router = useRouter()
 const message = useMessage()
@@ -240,6 +263,25 @@ const columns: DataTableColumns<Board> = [
   {
     title: '创建者',
     key: 'author_name'
+  },
+  {
+    title: '操作',
+    key: 'actions',
+    width: 100,
+    render(row: Board) {
+      return h('div', { class: 'flex space-x-1 justify-end' }, [
+        h(FavoriteButton, {
+          boardId: row.id,
+          onToggle: (id: string, state: boolean) => handleFavoriteToggle(id, state)
+        }),
+        h(MoreMenu, {
+          boardId: row.id,
+          onRename: (id: string) => handleRename(id),
+          onFavorite: (id: string) => handleFavorite(id),
+          onDelete: (id: string) => handleDelete(id)
+        })
+      ])
+    }
   }
 ]
 
@@ -291,14 +333,76 @@ const pagination = reactive({
 })
 
 // 处理创建新白板
-const handleCreateNew = () => {
-  message.info('创建新白板')
-  // 这里可以添加创建白板的逻辑
+const handleCreateNew = async () => {
+  loading.value = true
+  try {
+    // 创建一个默认标题为 Untitled 的白板
+    const newBoard = await createBoard('Untitled')
+
+    if (newBoard) {
+      message.success('白板创建成功')
+
+      // 生成编码后的路由
+      const encodedId = encodeId(newBoard.id)
+
+      // 跳转到新创建的白板
+      router.push(`/board/${encodedId}`)
+    } else {
+      message.error('白板创建失败')
+    }
+  } catch (error) {
+    message.error(`创建白板失败: ${error}`)
+  } finally {
+    loading.value = false
+  }
 }
 
 // 处理选择模板
 
 // 登出功能
+// 添加处理函数
+const handleFavoriteToggle = (id: string, state: boolean) => {
+  message.info(`${state ? '收藏' : '取消收藏'}白板: ${id}`)
+  // 这里可以添加收藏/取消收藏的逻辑
+}
+
+const handleRename = (id: string) => {
+  message.info(`重命名白板: ${id}`)
+  // 这里可以添加重命名的逻辑
+}
+
+const handleFavorite = (id: string) => {
+  message.info(`收藏白板: ${id}`)
+  // 这里可以添加收藏的逻辑
+}
+
+const dialog = useDialog()
+
+const handleDelete = async (id: string) => {
+  dialog.warning({
+    title: '删除白板',
+    content: '确定要删除这个白板吗？此操作不可撤销。',
+    positiveText: '确定',
+    negativeText: '取消',
+    async onPositiveClick() {
+      loading.value = true
+      try {
+        const success = await deleteBoard(id)
+        if (success) {
+          message.success('白板删除成功')
+          // 重新加载白板列表
+          await loadBoards()
+        } else {
+          message.error('删除白板失败')
+        }
+      } catch (error) {
+        message.error(`删除白板失败: ${error}`)
+      } finally {
+        loading.value = false
+      }
+    }
+  })
+}
 </script>
 
 <style scoped></style>

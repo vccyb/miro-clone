@@ -1,19 +1,22 @@
 <template>
-  <n-message-provider>
-    <!-- 根据路由选择不同的布局 -->
-    <AuthLayout v-if="isAuthRoute">
-      <RouterView></RouterView>
-    </AuthLayout>
-    <RootLayout v-else>
-      <RouterView></RouterView>
-    </RootLayout>
-  </n-message-provider>
+  <n-dialog-provider>
+    <n-message-provider>
+      <!-- 根据路由选择不同的布局 -->
+      <AuthLayout v-if="isAuthRoute">
+        <RouterView></RouterView>
+      </AuthLayout>
+      <RootLayout v-else>
+        <RouterView></RouterView>
+      </RootLayout>
+    </n-message-provider>
+  </n-dialog-provider>
+
 </template>
 
 <script setup lang="ts">
 import RootLayout from '@/components/Layout/RootLayout.vue'
 import AuthLayout from '@/components/Layout/AuthLayout.vue'
-import { NMessageProvider } from 'naive-ui'
+import { NMessageProvider, NDialogProvider } from 'naive-ui'
 import { onMounted, computed } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useRoute } from 'vue-router'
