@@ -4,7 +4,7 @@
     <div class="flex justify-between items-center mb-6">
       <h1 class="text-2xl font-bold">Boards in this team</h1>
       <div class="flex space-x-4">
-        <n-button @click="router.push('/templates')">Explore templates</n-button>
+        <!-- 移除 Explore templates 按钮 -->
         <n-button type="primary" @click="handleCreateNew">
           <template #icon>
             <iconify-icon icon="material-symbols:add" />
@@ -68,7 +68,8 @@
       <div v-else>
         <div class="grid grid-cols-3 gap-6">
           <div v-for="board in paginatedGridData" :key="board.id"
-            class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer group">
+            class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer group"
+            @click="navigateToBoard(board.id)"> <!-- 添加点击事件 -->
             <!-- 缩略图区域 -->
             <div class="h-50 bg-gray-50 flex items-center justify-center relative">
               <template v-if="board.image_url">
@@ -227,7 +228,10 @@ const columns: DataTableColumns<Board> = [
     title: '白板名称',
     key: 'title',
     render(row: Board) {
-      return h('div', { class: 'flex items-center' }, [
+      return h('div', {
+        class: 'flex items-center cursor-pointer',
+        onClick: () => navigateToBoard(row.id)  // 添加点击事件
+      }, [
         h('div', { class: 'w-10 h-10 mr-3 bg-gray-100 rounded flex items-center justify-center overflow-hidden' }, [
           row.image_url
             ? h('img', {
@@ -402,6 +406,14 @@ const handleDelete = async (id: string) => {
       }
     }
   })
+}
+
+// 添加导航到白板详情的方法
+const navigateToBoard = (boardId: string) => {
+  // 使用 encodeId 函数编码 ID
+  const encodedId = encodeId(boardId)
+  // 导航到白板详情页
+  router.push(`/board/${encodedId}`)
 }
 </script>
 
