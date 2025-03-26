@@ -13,49 +13,86 @@
 </template>
 
 <script setup lang="ts">
-import { ref, h } from 'vue'
+import { h, ref } from 'vue'
+import { NButton, NSpace, NAlert, NCard, NDataTable, useMessage } from 'naive-ui'
 import { generateBoards } from '@/service/seed'
-import { useMessage, NCard, NButton, NSpace, NAlert, NDataTable } from 'naive-ui'
-import type { DataTableColumns } from 'naive-ui'
+import { supabase } from '@/lib/supabaseClient'
 
-const loading = ref(false)
-const messageApi = useMessage()
+const message = useMessage()
+// 为每种类型创建独立的loading状态
+const loadingStates = ref({
+    boards: false,
+    teams: false
+})
 
-const handleGenerateData = async () => {
-    loading.value = true
+// 生成团队的函数
+const generateTeams = async () => {
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
 
+    if (authError || !user) {
+        throw new Error('需要登录才能生成测试数据')
+    }
+
+    // 生成团队数据
+    const teams = Array.from({ length: 5 }, (_, index) => ({
+        name: `测试团队 ${index + 1}`,
+        description: `这是一个测试团队 ${index + 1}`,
+        logo_url: null, // 暂时不设置logo
+        owner_id: user.id
+    }))
+
+    // 插入团队数据
+    const { data, error } = await supabase.from('teams').insert(teams)
+
+    if (error) {
+        throw new Error(`生成团队测试数据失败: ${error.message}`)
+    }
+
+    return true
+}
+
+const handleGenerateData = async (type: string) => {
+    // 设置对应类型的loading状态
+    loadingStates.value[type as keyof typeof loadingStates.value] = true
+    
     try {
-        await generateBoards()
-        messageApi.success('测试数据生成成功！')
-    } catch (error) {
-        messageApi.error(error instanceof Error ? error.message : '生成测试数据失败')
+        if (type === 'boards') {
+            await generateBoards()
+            message.success('白板数据生成成功')
+        } else if (type === 'teams') {
+            await generateTeams()
+            message.success('团队数据生成成功')
+        }
+    } catch (error: any) {
+        message.error(error.message || '生成数据失败')
     } finally {
-        loading.value = false
+        // 重置对应类型的loading状态
+        loadingStates.value[type as keyof typeof loadingStates.value] = false
     }
 }
 
-const columns: DataTableColumns = [
+const columns = [
     {
-        title: '数据类型',
-        key: 'type',
+        title: '功能',
+        key: 'feature',
         width: 200
     },
     {
-        title: '说明',
+        title: '描述',
         key: 'description'
     },
     {
         title: '操作',
         key: 'actions',
         width: 150,
-        render: () => {
+        render: (row: any) => {
             return h(
                 NButton,
                 {
-                    size: 'small',
                     type: 'primary',
-                    loading: loading.value,
-                    onClick: () => handleGenerateData()
+                    // 使用对应类型的loading状态
+                    loading: loadingStates.value[row.type as keyof typeof loadingStates.value],
+                    onClick: () => handleGenerateData(row.type)
                 },
                 { default: () => '生成数据' }
             )
@@ -65,8 +102,14 @@ const columns: DataTableColumns = [
 
 const mockData = [
     {
-        type: '白板数据',
-        description: '生成10条随机的白板数据，包含标题、创建者、创建时间等信息。每条数据都会关联到当前登录用户。'
+        feature: '白板',
+        description: '生成10个随机白板数据',
+        type: 'boards'
+    },
+    {
+        feature: '团队',
+        description: '生成5个随机团队数据',
+        type: 'teams'
     }
 ]
 </script>

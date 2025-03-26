@@ -10,6 +10,7 @@ create table
     author_id uuid references auth.users on delete cascade not null,
     author_name text not null,
     image_url text default null,
+    team_id uuid default null,
     
     primary key (id)
   );

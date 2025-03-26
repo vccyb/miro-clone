@@ -99,28 +99,28 @@ export const getBoardById = async (id: string): Promise<Board | null> => {
 export const createBoard = async (title: string = 'Untitled'): Promise<Board | null> => {
     const authStore = useAuthStore()
     if (!authStore.user) return null
-    
+
     // 随机选择一个预览图（1-10）
     const randomPreview = Math.floor(Math.random() * 10) + 1
-    
+
     const newBoard = {
         title,
         author_id: authStore.user.id,
         author_name: authStore.user.user_metadata?.name || authStore.user.email || 'Unknown',
         image_url: `/images/board-previews/${randomPreview}.svg`
     }
-    
+
     const { data, error } = await supabase
         .from('boards')
         .insert(newBoard)
         .select()
         .single()
-    
+
     if (error) {
         console.error('创建白板失败:', error)
         return null
     }
-    
+
     return data
 }
 
