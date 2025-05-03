@@ -5,6 +5,9 @@
       <AuthLayout v-if="isAuthRoute">
         <RouterView></RouterView>
       </AuthLayout>
+      <Boardlayout v-else-if="isBoardDetail">
+        <RouterView></RouterView>
+      </Boardlayout>
       <RootLayout v-else>
         <RouterView></RouterView>
       </RootLayout>
@@ -16,6 +19,7 @@
 <script setup lang="ts">
 import RootLayout from '@/components/Layout/RootLayout.vue'
 import AuthLayout from '@/components/Layout/AuthLayout.vue'
+import Boardlayout from '@/components/Layout/Boardlayout.vue'
 import { NMessageProvider, NDialogProvider } from 'naive-ui'
 import { onMounted, computed } from 'vue'
 import { useAuthStore } from '@/stores/auth'
@@ -27,6 +31,10 @@ const route = useRoute()
 const isAuthRoute = computed(() => {
   const authRoutes = ['/login', '/register', '/auth/callback']
   return authRoutes.includes(route.path)
+})
+
+const isBoardDetail = computed(() => {
+  return route.path.startsWith('/board')
 })
 
 onMounted(() => {
