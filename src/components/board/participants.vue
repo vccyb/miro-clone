@@ -4,7 +4,8 @@
             <!-- 当前用户头像 -->
             <n-tooltip placement="bottom" trigger="hover">
                 <template #trigger>
-                    <n-avatar v-if="user" :src="user.user_metadata?.avatar_url" :fallback="getInitials(user.email)" round>
+                    <n-avatar v-if="user" :src="user.user_metadata?.avatar_url" :fallback="getInitials(user.email)"
+                        round>
                         {{ getInitials(user.email) }}
                     </n-avatar>
                 </template>
