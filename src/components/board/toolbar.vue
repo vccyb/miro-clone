@@ -1,83 +1,34 @@
 <template>
     <div class="absolute left-2 top-1/2 -translate-y-1/2 bg-white rounded-md p-1.5 flex flex-col gap-2 shadow-md">
-        <n-tooltip placement="right" trigger="hover">
-            <template #trigger>
-                <n-button quaternary :focusable="false" class="toolbar-btn">
-                    <iconify-icon icon="lucide:mouse-pointer-2"></iconify-icon>
-                </n-button>
-            </template>
-            选择工具
-        </n-tooltip>
+        <toolbarButton label="选择工具" icon="lucide:mouse-pointer-2" :onClick="() => selectTool('pointer')"
+            :isActive="selectedTool === 'pointer'" />
 
-        <n-tooltip placement="right" trigger="hover">
-            <template #trigger>
-                <n-button quaternary :focusable="false" class="toolbar-btn">
-                    <iconify-icon icon="lucide:type"></iconify-icon>
-                </n-button>
-            </template>
-            文本工具
-        </n-tooltip>
+        <toolbarButton label="文本工具" icon="lucide:type" :onClick="() => selectTool('text')"
+            :isActive="selectedTool === 'text'" />
 
-        <n-tooltip placement="right" trigger="hover">
-            <template #trigger>
-                <n-button quaternary :focusable="false" class="toolbar-btn">
-                    <iconify-icon icon="lucide:sticky-note"></iconify-icon>
-                </n-button>
-            </template>
-            便签工具
-        </n-tooltip>
+        <toolbarButton label="便签工具" icon="lucide:sticky-note" :onClick="() => selectTool('note')"
+            :isActive="selectedTool === 'note'" />
 
-        <n-tooltip placement="right" trigger="hover">
-            <template #trigger>
-                <n-button quaternary :focusable="false" class="toolbar-btn">
-                    <iconify-icon icon="lucide:square"></iconify-icon>
-                </n-button>
-            </template>
-            矩形工具
-        </n-tooltip>
+        <toolbarButton label="矩形工具" icon="lucide:square" :onClick="() => selectTool('rectangle')"
+            :isActive="selectedTool === 'rectangle'" />
 
-        <n-tooltip placement="right" trigger="hover">
-            <template #trigger>
-                <n-button quaternary :focusable="false" class="toolbar-btn">
-                    <iconify-icon icon="lucide:circle"></iconify-icon>
-                </n-button>
-            </template>
-            圆形工具
-        </n-tooltip>
+        <toolbarButton label="圆形工具" icon="lucide:circle" :onClick="() => selectTool('circle')"
+            :isActive="selectedTool === 'circle'" />
 
-        <n-tooltip placement="right" trigger="hover">
-            <template #trigger>
-                <n-button quaternary :focusable="false" class="toolbar-btn">
-                    <iconify-icon icon="lucide:pencil"></iconify-icon>
-                </n-button>
-            </template>
-            铅笔工具
-        </n-tooltip>
+        <toolbarButton label="铅笔工具" icon="lucide:pencil" :onClick="() => selectTool('pencil')"
+            :isActive="selectedTool === 'pencil'" />
 
         <n-divider style="margin: 4px 0;" />
 
-        <n-tooltip placement="right" trigger="hover">
-            <template #trigger>
-                <n-button quaternary :focusable="false" class="toolbar-btn">
-                    <iconify-icon icon="lucide:undo-2"></iconify-icon>
-                </n-button>
-            </template>
-            撤销
-        </n-tooltip>
+        <toolbarButton label="撤销" icon="lucide:undo-2" :onClick="() => handleUndo()" />
 
-        <n-tooltip placement="right" trigger="hover">
-            <template #trigger>
-                <n-button quaternary :focusable="false" class="toolbar-btn">
-                    <iconify-icon icon="lucide:redo-2"></iconify-icon>
-                </n-button>
-            </template>
-            重做
-        </n-tooltip>
+        <toolbarButton label="重做" icon="lucide:redo-2" :onClick="() => handleRedo()" />
     </div>
 </template>
 
 <script setup>
-import { NButton, NTooltip, NDivider } from 'naive-ui';
+import { NDivider } from 'naive-ui';
+import toolbarButton from './toolbarButton.vue'
 import { ref } from 'vue';
 
 // 当前选中的工具
@@ -86,20 +37,22 @@ const selectedTool = ref('pointer');
 // 选择工具的方法
 const selectTool = (tool) => {
     selectedTool.value = tool;
+    console.log(`已选择工具: ${tool}`);
+};
+
+// 撤销操作
+const handleUndo = () => {
+    console.log('执行撤销操作');
+    // 这里添加撤销逻辑
+};
+
+// 重做操作
+const handleRedo = () => {
+    console.log('执行重做操作');
+    // 这里添加重做逻辑
 };
 </script>
 
 <style scoped>
-.toolbar-btn {
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 4px;
-}
-
-.toolbar-btn:hover {
-    background-color: rgba(0, 0, 0, 0.05);
-}
+/* 可以移除这些样式，因为它们已经在 toolbarButton 组件中定义 */
 </style>
