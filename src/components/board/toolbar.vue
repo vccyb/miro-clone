@@ -17,8 +17,8 @@
             :isActive="canvasState.mode === CanvasMode.Inserting && canvasState.layerType === LayerType.Note" />
 
         <toolbarButton label="矩形工具" icon="lucide:square"
-            :onClick="() => setCanvasState({ mode: CanvasMode.Inserting, layerType: LayerType.Reacangle })"
-            :isActive="canvasState.mode === CanvasMode.Inserting && canvasState.layerType === LayerType.Reacangle" />
+            :onClick="() => setCanvasState({ mode: CanvasMode.Inserting, layerType: LayerType.Rectangle })"
+            :isActive="canvasState.mode === CanvasMode.Inserting && canvasState.layerType === LayerType.Rectangle" />
 
         <toolbarButton label="圆形工具" icon="lucide:circle"
             :onClick="() => setCanvasState({ mode: CanvasMode.Inserting, layerType: LayerType.Ellipse })"

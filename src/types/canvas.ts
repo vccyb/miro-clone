@@ -10,7 +10,7 @@ export type Camera = {
 }
 
 export enum LayerType {
-    Reacangle,
+    Rectangle,
     Ellipse,
     Path,
     Text,
@@ -18,7 +18,7 @@ export enum LayerType {
 }
 
 export type RectangleLayer = {
-    type: LayerType.Reacangle
+    type: LayerType.Rectangle
     x: number
     y: number
     height: number
@@ -26,6 +26,16 @@ export type RectangleLayer = {
     full: Color
     value?: string
 }
+
+export type EllipaseLayer = {
+    type: LayerType.Ellipse;
+    x: number;
+    y: number;
+    height: number;
+    width: number;
+    fill: Color;
+    value?: string;
+};
 
 export type PathLayer = {
     type: LayerType.Path
@@ -100,7 +110,7 @@ export type CanvasState =
         layerType:
         | LayerType.Ellipse
         | LayerType.Note
-        | LayerType.Reacangle
+        | LayerType.Rectangle
         | LayerType.Text
     }
     | {
@@ -122,3 +132,9 @@ export enum CanvasMode {
     Pencil,
 }
 
+export type Layer =
+    | RectangleLayer
+    | EllipaseLayer
+    | PathLayer
+    | TextLayer
+    | NoteLayer;

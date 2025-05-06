@@ -4,10 +4,9 @@
         <participants />
         <toolbar :canvasState="canvasState" :setCanvasState="setCanvasState" :canRedo="false" :canUndo="false"
             :undo="() => { }" :redo="() => { }" />
-        <svg class="h-[100vh] w-[100vw]" @wheel="handleWheel">
+        <svg class="h-[100vh] w-[100vw]" @wheel="handleWheel" @pointerdown="onPointerDown" @pointerup="onPointertUp">
             <g :style="{ transform: `translate(${camera.x}px,${camera.y}px)` }">
-                <rect width="300" height="100" style="fill:rgb(0,0,255);stroke-width:1;stroke:rgb(0,0,0)" />
-                <layer-preview :id="testId"></layer-preview>
+                <layer-preview v-for="id of layerIds" :key="id" :id="id"></layer-preview>
             </g>
         </svg>
     </div>
@@ -22,12 +21,18 @@ import { useRoute } from 'vue-router'
 import { ref } from 'vue'
 
 import { pointEventTocavansPoint } from '@/utils/canvasUtil'
-
-
 import type { CanvasState, Camera } from "@/types/canvas"
-import { LayerType } from "@/types/canvas"
+import { LayerType, CanvasMode } from "@/types/canvas"
 
-import { CanvasMode } from "@/types/canvas"
+
+import { useCanvasStore } from '@/stores/canvas.ts'
+const canvasStore = useCanvasStore()
+
+// get layerIds from canvasStore
+const layerIds = canvasStore.layerIds
+
+
+
 const canvasState = ref<CanvasState>({
     mode: CanvasMode.None
 })
@@ -39,7 +44,9 @@ const route = useRoute()
 const id = route.params.id
 
 
-const testId = ref<string>("123456")
+
+
+
 
 /** camera */
 
@@ -62,14 +69,29 @@ const handleWheel = (event: WheelEvent) => {
 
 
 
-/** on Poniter uo */
+/** on Poniter up */
 const onPointertUp = (event: MouseEvent) => {
+    console.log("onPointerUp", event)
     // point 是相对于 camera的
     const point = pointEventTocavansPoint(event, camera.value)
     if (canvasState.value.mode === CanvasMode.Inserting) {
-        insertLayer(canvasState.value.layerType, point)
+        canvasStore.insertLayer(canvasState.value.layerType, point)
     } else {
         setCanvasState({ mode: CanvasMode.None })
     }
+}
+
+/** on Pointer down */
+const onPointerDown = (event: MouseEvent) => {
+    console.log("onPointerDown", event)
+    const point = pointEventTocavansPoint(event, camera.value)
+    if (canvasState.value.mode === CanvasMode.Inserting) {
+        return;
+    }
+
+    if (canvasState.value.mode === CanvasMode.Pencil) {
+        //TODO
+    }
+
 }
 </script>
