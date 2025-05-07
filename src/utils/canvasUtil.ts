@@ -1,4 +1,4 @@
-import type { Camera } from "@/types/canvas";
+import type { Camera, Color } from "@/types/canvas";
 
 export function pointEventTocavansPoint(e: MouseEvent, camera: Camera) {
     const x = Math.round(e.clientX) - camera.x;
@@ -24,4 +24,11 @@ export function getSvgPathFromStroke(stroke: number[][]) {
     );
     d.push("Z");
     return d.join(" ");
+}
+
+
+export function colorToCss(color: Color) {
+    const rc = `#${color.r.toString(16).padStart(2, "0")}${color.g.toString(16).padStart(2, "0")}${color.b.toString(16).padStart(2, "0")}`;
+
+    return rc;
 }

@@ -25,6 +25,9 @@ const previewComponentName = computed(() => {
         case LayerType.Rectangle:
             return "rectangle"
             break;
+        case LayerType.Ellipse:
+            return "ellipse"
+            break;
         default:
             return null
     }

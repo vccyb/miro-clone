@@ -3,7 +3,7 @@
 import { ref, computed, h } from 'vue'
 import { nanoid } from "nanoid";
 import { defineStore } from 'pinia'
-import type { Point } from '@/types/canvas'
+import type { Point, Color } from '@/types/canvas'
 import { LayerType } from "@/types/canvas"
 type InsertLayerType =
   | LayerType.Ellipse
@@ -19,6 +19,12 @@ export const useCanvasStore = defineStore('canvas-board', () => {
   const layers = ref<Record<string, any>>({})
 
 
+  const lastUsedColor = ref<Color>({
+    r: 255,
+    g: 255,
+    b: 0
+  })
+
   const insertLayer = (layerType: InsertLayerType, position: Point) => {
     const layerId = nanoid();
     layerIds.value.push(layerId)
@@ -28,7 +34,7 @@ export const useCanvasStore = defineStore('canvas-board', () => {
       y: position.y,
       width: 100,
       height: 100,
-      fill: "#ccc"
+      fill: lastUsedColor.value,
     }
     layers.value[layerId] = layer
   }

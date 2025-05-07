@@ -1,12 +1,13 @@
 <template>
   <rect :style="{ transform: `translate(${x}px, ${y}px)` }" :x="0" :y="0" :width="width" :height="height"
-    :stroke-width="1" fill="#000">
+    :stroke-width="1" :fill="fill ? colorToCss(fill) : '#000'">
 
   </rect>
 </template>
 
 <script setup lang="ts">
 import { RectangleLayer } from "@/types/canvas.ts"
+import { colorToCss } from "@/utils/canvasUtil.ts";
 interface RectangleProps {
   id?: string
   layer?: ReactangleLayer

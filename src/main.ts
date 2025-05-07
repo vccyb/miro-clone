@@ -8,11 +8,13 @@ import App from './App.vue'
 import router from './router'
 
 import SvgRectangle from "@/components/board/Rectangle.vue"
+import SvgEllipse from "@/components/board/Ellipse.vue"
 
 
 const app = createApp(App)
 
 app.component('svg-rectangle', SvgRectangle)
+app.component('svg-ellipse', SvgEllipse)
 
 app.use(createPinia())
 app.use(router)
