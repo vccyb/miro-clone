@@ -6,7 +6,8 @@
             :undo="() => { }" :redo="() => { }" />
         <svg class="h-[100vh] w-[100vw]" @wheel="handleWheel" @pointerdown="onPointerDown" @pointerup="onPointertUp">
             <g :style="{ transform: `translate(${camera.x}px,${camera.y}px)` }">
-                <layer-preview v-for="id of layerIds" :key="id" :id="id"></layer-preview>
+                <layer-preview v-for="id of layerIds" :key="id" :id="id"
+                    @layerPointerDown="handleLayerPointerDown"></layer-preview>
             </g>
         </svg>
     </div>
@@ -71,7 +72,6 @@ const handleWheel = (event: WheelEvent) => {
 
 /** on Poniter up */
 const onPointertUp = (event: MouseEvent) => {
-    console.log("onPointerUp", event)
     // point 是相对于 camera的
     const point = pointEventTocavansPoint(event, camera.value)
     if (canvasState.value.mode === CanvasMode.Inserting) {
@@ -83,7 +83,6 @@ const onPointertUp = (event: MouseEvent) => {
 
 /** on Pointer down */
 const onPointerDown = (event: MouseEvent) => {
-    console.log("onPointerDown", event)
     const point = pointEventTocavansPoint(event, camera.value)
     if (canvasState.value.mode === CanvasMode.Inserting) {
         return;
@@ -92,6 +91,31 @@ const onPointerDown = (event: MouseEvent) => {
     if (canvasState.value.mode === CanvasMode.Pencil) {
         //TODO
     }
+
+}
+
+
+/**
+ * * handle layer pointer down
+ */
+const handleLayerPointerDown = (event: PointEvent, layerId: string) => {
+    // console.log("canvas[id] layerPointerDown", event, layerId);
+    if (canvasState.value.mode === CanvasMode.Inserting) {
+        return;
+    }
+
+    if (canvasState.value.mode === CanvasMode.Pencil) {
+        return
+    }
+
+    const point = pointEventTocavansPoint(event, camera.value)
+
+    setCanvasState({
+        mode: CanvasMode.Translating,
+        current: point,
+    })
+
+
 
 }
 </script>
