@@ -61,7 +61,7 @@ export function resizeBounds(
     }
     if ((corner & Side.Bottom) === Side.Bottom) {
         result.y = Math.min(point.y, bounds.y);
-        result.width = Math.abs(point.y - bounds.y);
+        result.height = Math.abs(point.y - bounds.y);
     }
 
     return result

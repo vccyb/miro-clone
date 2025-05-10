@@ -5,53 +5,53 @@
   </rect>
   <template v-if="isShowingHandles">
     <rect class="fill-white stroke-1 stroke-blue-500" :x="0" :y="0" :style="{
-      cursor: 'nw-resize',
+      cursor: 'nwse-resize',
       width: `${HANDLE_WIDTH}px`,
       height: `${HANDLE_WIDTH}px`,
       transform: `translate(${bounds?.x - HANDLE_WIDTH / 2}px,${bounds?.y - HANDLE_WIDTH / 2}px)`
     }" @pointerdown="(e) => handlePointerDown(e, Side.Top + Side.Left, bounds)"></rect>
     <rect class="fill-white stroke-1 stroke-blue-500" :x="0" :y="0" :style="{
-      cursor: 'ne-resize',
+      cursor: 'ns-resize',
       width: `${HANDLE_WIDTH}px`,
       height: `${HANDLE_WIDTH}px`,
       transform: `translate(${bounds?.x + bounds?.width / 2 - HANDLE_WIDTH / 2}px,${bounds?.y - HANDLE_WIDTH / 2}px)`
-    }"></rect>
+    }" @pointerdown="(e) => handlePointerDown(e, Side.Top, bounds)"></rect>
     <rect class="fill-white stroke-1 stroke-blue-500" :x="0" :y="0" :style="{
-      cursor: 'nw-resize',
+      cursor: 'nesw-resize',
       width: `${HANDLE_WIDTH}px`,
       height: `${HANDLE_WIDTH}px`,
       transform: `translate(${bounds?.x + bounds?.width - HANDLE_WIDTH / 2}px,${bounds?.y - HANDLE_WIDTH / 2}px)`
-    }"></rect>
+    }" @pointerdown="(e) => handlePointerDown(e, Side.Top + Side.Right, bounds)"></rect>
     <rect class="fill-white stroke-1 stroke-blue-500" :x="0" :y="0" :style="{
-      cursor: 'nw-resize',
+      cursor: 'ew-resize',
       width: `${HANDLE_WIDTH}px`,
       height: `${HANDLE_WIDTH}px`,
       transform: `translate(${bounds?.x - HANDLE_WIDTH / 2}px,${bounds?.y + bounds?.height / 2 - HANDLE_WIDTH / 2}px)`
-    }"></rect>
+    }" @pointerdown="(e) => handlePointerDown(e, Side.Left, bounds)"></rect>
     <rect class="fill-white stroke-1 stroke-blue-500" :x="0" :y="0" :style="{
-      cursor: 'nw-resize',
+      cursor: 'ew-resize',
       width: `${HANDLE_WIDTH}px`,
       height: `${HANDLE_WIDTH}px`,
       transform: `translate(${bounds?.x + bounds?.width - HANDLE_WIDTH / 2}px,${bounds?.y + bounds?.height / 2 - HANDLE_WIDTH / 2}px)`
-    }"></rect>
+    }" @pointerdown="(e) => handlePointerDown(e, Side.Right, bounds)"></rect>
     <rect class="fill-white stroke-1 stroke-blue-500" :x="0" :y="0" :style="{
-      cursor: 'nw-resize',
+      cursor: 'nesw-resize',
       width: `${HANDLE_WIDTH}px`,
       height: `${HANDLE_WIDTH}px`,
       transform: `translate(${bounds?.x - HANDLE_WIDTH / 2}px,${bounds?.y + bounds?.height - HANDLE_WIDTH / 2}px)`
-    }"></rect>
+    }" @pointerdown="(e) => handlePointerDown(e, Side.Bottom + Side.Left, bounds)"></rect>
     <rect class="fill-white stroke-1 stroke-blue-500" :x="0" :y="0" :style="{
-      cursor: 'nw-resize',
+      cursor: 'ns-resize',
       width: `${HANDLE_WIDTH}px`,
       height: `${HANDLE_WIDTH}px`,
       transform: `translate(${bounds?.x + bounds?.width / 2 - HANDLE_WIDTH / 2}px,${bounds?.y + bounds?.height - HANDLE_WIDTH / 2}px)`
-    }"></rect>
+    }" @pointerdown="(e) => handlePointerDown(e, Side.Bottom, bounds)"></rect>
     <rect class="fill-white stroke-1 stroke-blue-500" :x="0" :y="0" :style="{
-      cursor: 'nw-resize',
+      cursor: 'nwse-resize',
       width: `${HANDLE_WIDTH}px`,
       height: `${HANDLE_WIDTH}px`,
       transform: `translate(${bounds?.x + bounds?.width - HANDLE_WIDTH / 2}px,${bounds?.y + bounds?.height - HANDLE_WIDTH / 2}px)`
-    }"></rect>
+    }" @pointerdown="(e) => handlePointerDown(e, Side.Bottom + Side.Right, bounds)"></rect>
   </template>
 </template>
 

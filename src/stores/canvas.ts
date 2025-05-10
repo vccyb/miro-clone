@@ -74,19 +74,8 @@ export const useCanvasStore = defineStore('canvas-board', () => {
     if (!currentLayerId.value) return null
     return layers.value[currentLayerId.value] || null
   })
-  
-  // 添加一个计算属性，用于获取当前选中图层的边界
-  const selectionBounds = computed(() => {
-    const layer = currentLayer.value
-    if (!layer) return null
-    
-    return {
-      x: layer.x,
-      y: layer.y,
-      width: layer.width,
-      height: layer.height
-    }
-  })
+
+
 
   return {
     layerIds,
