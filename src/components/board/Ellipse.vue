@@ -1,6 +1,7 @@
 <template>
-  <ellipse class="" :style="{ transform: `translate(${x}px, ${y}px)` }" :cx="width / 2" :cy="height / 2" :rx="width / 2"
-    :ry="height / 2" :fill="fill ? colorToCss(fill) : '#000'" :stroke-width="1" @pointerdown="handlePointerDown">
+  <ellipse class="" :style="{ transform: `translate(${layer.x}px, ${layer.y}px)` }" :cx="layer.width / 2"
+    :cy="layer.height / 2" :rx="layer.width / 2" :ry="layer.height / 2" :fill="fill ? colorToCss(fill) : '#000'"
+    :stroke-width="1" @pointerdown="handlePointerDown">
 
   </ellipse>
 </template>
@@ -16,7 +17,7 @@ interface EllipseProps {
 }
 const props = defineProps<EllipseProps>()
 
-const { x = 0, y = 0, width = 100, height = 100, fill } = props?.layer ?? {}
+const { fill } = props?.layer ?? {}
 
 
 

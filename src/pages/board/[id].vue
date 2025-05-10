@@ -4,11 +4,12 @@
         <participants />
         <toolbar :canvasState="canvasState" :setCanvasState="setCanvasState" :canRedo="false" :canUndo="false"
             :undo="() => { }" :redo="() => { }" />
-        <svg class="h-[100vh] w-[100vw]" @wheel="handleWheel" @pointerdown="onPointerDown" @pointerup="onPointertUp">
+        <svg class="h-[100vh] w-[100vw]" @wheel="handleWheel" @pointerdown="onPointerDown" @pointerup="onPointertUp"
+            @pointermove="onPointerMove">
             <g :style="{ transform: `translate(${camera.x}px,${camera.y}px)` }">
                 <layer-preview v-for="id of layerIds" :key="id" :id="id"
                     @layerPointerDown="handleLayerPointerDown"></layer-preview>
-                <selection-box @resizeHandlePointerDown="() => { }"></selection-box>
+                <selection-box @resizeHandlePointerDown="handleResizeHandlePointerDown"></selection-box>
             </g>
         </svg>
     </div>
@@ -21,9 +22,9 @@ import Toolbar from '@/components/board/Toolbar.vue'
 import LayerPreview from '@/components/board/LayerPreview.vue'
 import SelectionBox from "@/components/board/SelectionBox.vue"
 import { useRoute } from 'vue-router'
-import { ref, provide } from 'vue'
+import { ref, provide, watch } from 'vue'
 
-import { pointEventTocavansPoint } from '@/utils/canvasUtil'
+import { pointEventTocavansPoint, resizeBounds } from '@/utils/canvasUtil'
 import type { CanvasState, Camera } from "@/types/canvas"
 import { LayerType, CanvasMode } from "@/types/canvas"
 
@@ -40,9 +41,13 @@ const canvasState = ref<CanvasState>({
     mode: CanvasMode.None
 })
 const setCanvasState = (state: CanvasState) => {
+    if (state.mode === CanvasMode.Inserting || state.mode === CanvasMode.Pencil) {
+        canvasStore.setCurrentLayerId(null)
+    }
     canvasState.value = state
 }
 
+provide('canvasState', canvasState)
 
 
 const route = useRoute()
@@ -135,11 +140,49 @@ const handleLayerPointerDown = (event: PointEvent, layerId: string) => {
 
 }
 
+watch(canvasState, (newState, oldState) => {
+    debugger
+    console.log(newState, oldState);
+}, { deep: true })
 
 
 
 
-const resizeHandlePointerDown = (event: PointEvent) => {
-    consol.log("resizeHandlePointerDown", event)
+/** resize handle */
+const handleResizeHandlePointerDown = (corner: Side, initialBounds: XYWH) => {
+    console.log("canvas[id] handleResizeHandlePointerDown", corner, initialBounds);
+
+    // update state to resizing
+    setCanvasState({
+        mode: CanvasMode.Resizing,
+        initialBounds,
+        corner,
+    })
+}
+
+
+const onPointerMove = (event: MouseEvent) => {
+    event.preventDefault()
+    const currentPoint = pointEventTocavansPoint(event, camera.value)
+
+    if (canvasState.value.mode === CanvasMode.Resizing) {
+        resizeSelectedLayer(currentPoint)
+    }
+
+}
+
+
+
+const resizeSelectedLayer = (point: Point) => {
+    if (canvasState.value.mode !== CanvasMode.Resizing) {
+        return
+    }
+
+    const bounds = resizeBounds(
+        canvasState.value.initialBounds,
+        canvasState.value.corner,
+        point
+    )
+    canvasStore.updateLayerWithBoundsAndId(canvasStore.currentLayerId, bounds)
 }
 </script>

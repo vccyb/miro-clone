@@ -3,7 +3,7 @@
 import { ref, computed, h } from 'vue'
 import { nanoid } from "nanoid";
 import { defineStore } from 'pinia'
-import type { Point, Color, Layer } from '@/types/canvas'
+import type { Point, Color, Layer, XYWH } from '@/types/canvas'
 import { LayerType } from "@/types/canvas"
 type InsertLayerType =
   | LayerType.Ellipse
@@ -42,6 +42,15 @@ export const useCanvasStore = defineStore('canvas-board', () => {
     layers.value[layerId] = layer
   }
 
+  const updateLayerWithBoundsAndId = (layerId: string, bounds: XYWH) => {
+    const layer = layers.value[layerId]
+    if (!layer) return
+    layer.x = bounds.x
+    layer.y = bounds.y
+    layer.width = bounds.width
+    layer.height = bounds.height
+  }
+
 
   const getLayerById = (layerId: string) => {
     return layers.value[layerId]
@@ -60,6 +69,25 @@ export const useCanvasStore = defineStore('canvas-board', () => {
 
 
 
+  // 添加一个计算属性，用于获取当前选中图层
+  const currentLayer = computed(() => {
+    if (!currentLayerId.value) return null
+    return layers.value[currentLayerId.value] || null
+  })
+  
+  // 添加一个计算属性，用于获取当前选中图层的边界
+  const selectionBounds = computed(() => {
+    const layer = currentLayer.value
+    if (!layer) return null
+    
+    return {
+      x: layer.x,
+      y: layer.y,
+      width: layer.width,
+      height: layer.height
+    }
+  })
+
   return {
     layerIds,
     layers,
@@ -67,6 +95,7 @@ export const useCanvasStore = defineStore('canvas-board', () => {
     getLayerById,
     lastLayer,
     currentLayerId,
-    setCurrentLayerId
+    setCurrentLayerId,
+    updateLayerWithBoundsAndId
   }
 })
