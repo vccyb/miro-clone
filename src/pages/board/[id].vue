@@ -8,18 +8,20 @@
             <g :style="{ transform: `translate(${camera.x}px,${camera.y}px)` }">
                 <layer-preview v-for="id of layerIds" :key="id" :id="id"
                     @layerPointerDown="handleLayerPointerDown"></layer-preview>
+                <selection-box @resizeHandlePointerDown="() => { }"></selection-box>
             </g>
         </svg>
     </div>
 </template>
 
 <script setup lang="ts">
-import info from '@/components/board/info.vue'
-import participants from '@/components/board/participants.vue'
-import toolbar from '@/components/board/toolbar.vue'
-import layerPreview from '@/components/board/layerPreview.vue'
+import Info from '@/components/board/Info.vue'
+import Participants from '@/components/board/Participants.vue'
+import Toolbar from '@/components/board/Toolbar.vue'
+import LayerPreview from '@/components/board/LayerPreview.vue'
+import SelectionBox from "@/components/board/SelectionBox.vue"
 import { useRoute } from 'vue-router'
-import { ref } from 'vue'
+import { ref, provide } from 'vue'
 
 import { pointEventTocavansPoint } from '@/utils/canvasUtil'
 import type { CanvasState, Camera } from "@/types/canvas"
@@ -40,6 +42,8 @@ const canvasState = ref<CanvasState>({
 const setCanvasState = (state: CanvasState) => {
     canvasState.value = state
 }
+
+
 
 const route = useRoute()
 const id = route.params.id
@@ -69,12 +73,23 @@ const handleWheel = (event: WheelEvent) => {
 }
 
 
+const unSelectLayers = () => {
+    canvasStore.setCurrentLayerId(null)
+}
+
 
 /** on Poniter up */
 const onPointertUp = (event: MouseEvent) => {
     // point 是相对于 camera的
     const point = pointEventTocavansPoint(event, camera.value)
-    if (canvasState.value.mode === CanvasMode.Inserting) {
+    if (canvasState.value.mode === CanvasMode.None) {
+        unSelectLayers()
+        setCanvasState({ mode: CanvasMode.None })
+    }
+    else if (canvasState.value.mode === CanvasMode.Pencil) {
+        return //TODO
+    }
+    else if (canvasState.value.mode === CanvasMode.Inserting) {
         canvasStore.insertLayer(canvasState.value.layerType, point)
     } else {
         setCanvasState({ mode: CanvasMode.None })
@@ -108,14 +123,23 @@ const handleLayerPointerDown = (event: PointEvent, layerId: string) => {
         return
     }
 
+    event.stopPropagation()
     const point = pointEventTocavansPoint(event, camera.value)
 
+    // update current layerid
+    canvasStore.setCurrentLayerId(layerId)
     setCanvasState({
         mode: CanvasMode.Translating,
         current: point,
     })
 
+}
 
 
+
+
+
+const resizeHandlePointerDown = (event: PointEvent) => {
+    consol.log("resizeHandlePointerDown", event)
 }
 </script>

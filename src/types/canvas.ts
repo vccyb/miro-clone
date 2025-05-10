@@ -18,6 +18,7 @@ export enum LayerType {
 }
 
 export type RectangleLayer = {
+    id: string
     type: LayerType.Rectangle
     x: number
     y: number
@@ -28,6 +29,7 @@ export type RectangleLayer = {
 }
 
 export type EllipaseLayer = {
+    id: string;
     type: LayerType.Ellipse;
     x: number;
     y: number;
@@ -38,6 +40,7 @@ export type EllipaseLayer = {
 };
 
 export type PathLayer = {
+    id: string
     type: LayerType.Path
     x: number
     y: number
@@ -50,6 +53,7 @@ export type PathLayer = {
 
 
 export type TextLayer = {
+    id: string
     type: LayerType.Text
     x: number
     y: number
@@ -60,6 +64,7 @@ export type TextLayer = {
 }
 
 export type NoteLayer = {
+    id: string
     type: LayerType.Note
     x: number
     y: number

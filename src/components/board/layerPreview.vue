@@ -5,21 +5,21 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { LayerType } from "@/types/canvas"
+import { useCanvasStore } from '@/stores/canvas.ts'
 
 interface LayerPreviewProps {
     id: string
 }
 
 
-
-
-import { useCanvasStore } from '@/stores/canvas.ts'
 const canvasStore = useCanvasStore()
 
 const props = defineProps<LayerPreviewProps>()
 
 // get layer with id from canvasStore
-const layer = ref(canvasStore.getLayerById(props.id))
+// const layer = ref(canvasStore.getLayerById(props.id))
+
+const layer = computed(() => canvasStore.getLayerById(props.id))
 
 
 
@@ -45,6 +45,7 @@ const emit = defineEmits<{
 }>()
 
 const handlLayerPointerDown = (event: PointEvent, layerId: string) => {
+
     // console.log("layerPreviews layerPointerDown", event, layerId);
     emit('layerPointerDown', event, layerId)
 }
