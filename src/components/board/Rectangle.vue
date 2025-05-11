@@ -1,6 +1,7 @@
 <template>
-  <rect :style="{ transform: `translate(${layer.x}px, ${layer.y}px)` }" :x="0" :y="0" :width="layer.width"
-    :height="layer.height" :stroke-width="1" :fill="fill ? colorToCss(fill) : '#000'" @pointerdown="handlePointerDown">
+  <rect class="drop-shadow-md" :style="{ transform: `translate(${layer.x}px, ${layer.y}px)` }" :x="0" :y="0"
+    :width="layer.width" :height="layer.height" :stroke-width="1" :fill="fill ? colorToCss(fill) : '#000'"
+    @pointerdown="handlePointerDown">
 
   </rect>
 </template>

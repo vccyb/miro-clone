@@ -1,5 +1,5 @@
 <template>
-  <ellipse class="" :style="{ transform: `translate(${layer.x}px, ${layer.y}px)` }" :cx="layer.width / 2"
+  <ellipse class="drop-shadow-md" :style="{ transform: `translate(${layer.x}px, ${layer.y}px)` }" :cx="layer.width / 2"
     :cy="layer.height / 2" :rx="layer.width / 2" :ry="layer.height / 2" :fill="fill ? colorToCss(fill) : '#000'"
     :stroke-width="1" @pointerdown="handlePointerDown">
 

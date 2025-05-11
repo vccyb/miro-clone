@@ -1,6 +1,7 @@
 <template>
   <foreignObject :x="layer.x" :y="layer.y" :width="layer.width" :height="layer.height"
-    :style="{ backgroundColor: fill ? colorToCss(fill) : '#eca006' }" @pointerdown="handlePointerDown">
+    :style="{ backgroundColor: fill ? colorToCss(fill) : '#eca006' }" @pointerdown="handlePointerDown"
+    class="shadow-md drop-shadow-xl">
     <contenteditable
       :style="{ width: '100%', height: '100%', color: '#000', fontSize: '16px', padding: '10px', overflow: 'hidden' }">
       123456
