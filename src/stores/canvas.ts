@@ -57,6 +57,10 @@ export const useCanvasStore = defineStore('canvas-board', () => {
   }
 
 
+  const getCurrentLayer = computed<Layer | null>(() => {
+    return currentLayerId.value ? layers.value[currentLayerId.value] : null
+  })
+
   const lastLayer = computed<Layer | null>(() => {
     if (layerIds.value.length === 0) return null
     const lastId = layerIds.value[layerIds.value.length - 1]
@@ -68,12 +72,14 @@ export const useCanvasStore = defineStore('canvas-board', () => {
   }
 
 
+  const updateLayerWithOffsetAndId = (layerId: string, offset: Point) => {
+    const layer = layers.value[layerId]
+    if (!layer) return
+    // 加上相对位置
+    layer.x += offset.x
+    layer.y += offset.y
+  }
 
-  // 添加一个计算属性，用于获取当前选中图层
-  const currentLayer = computed(() => {
-    if (!currentLayerId.value) return null
-    return layers.value[currentLayerId.value] || null
-  })
 
 
 
@@ -84,7 +90,9 @@ export const useCanvasStore = defineStore('canvas-board', () => {
     getLayerById,
     lastLayer,
     currentLayerId,
+    getCurrentLayer,
     setCurrentLayerId,
-    updateLayerWithBoundsAndId
+    updateLayerWithBoundsAndId,
+    updateLayerWithOffsetAndId
   }
 })

@@ -2,7 +2,7 @@
     <div class="absolute top-2 left-2 bg-white rounded-md px-1.5 h-12 flex items-center shadow-md">
         <n-tooltip placement="bottom" trigger="hover">
             <template #trigger>
-                <n-button quaternary :focusable=false>
+                <n-button quaternary :focusable=false @click="$router.push('/')">
                     <span class="font-bold text-[120%]">VBorad</span>
                 </n-button>
             </template>
@@ -27,13 +27,8 @@
             更多选项
         </n-tooltip>
     </div>
-    <RenameModal 
-        :showModal="showRenameModal" 
-        @update:showModal="showRenameModal = $event" 
-        :boardId="decodedBoardId" 
-        :initialTitle="boardTitle"
-        @renamed="handleRenamed"
-    />
+    <RenameModal :showModal="showRenameModal" @update:showModal="showRenameModal = $event" :boardId="decodedBoardId"
+        :initialTitle="boardTitle" @renamed="handleRenamed" />
 </template>
 
 <script setup>

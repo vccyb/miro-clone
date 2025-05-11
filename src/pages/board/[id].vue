@@ -4,7 +4,8 @@
         <participants />
         <toolbar :canvasState="canvasState" :setCanvasState="setCanvasState" :canRedo="false" :canUndo="false"
             :undo="() => { }" :redo="() => { }" />
-        <svg class="h-[100vh] w-[100vw]" @wheel="handleWheel" @pointerdown="onPointerDown" @pointerup="onPointertUp"
+        <selected-tools :camera="camera" @setLastUsedColor="() => { }"></selected-tools>
+        <svg class="h-[100vh] w-[100vw]" @wheel="handleWheel" @pointerdown="onPointerDown" @pointerup="onPointerUp"
             @pointermove="onPointerMove">
             <g :style="{ transform: `translate(${camera.x}px,${camera.y}px)` }">
                 <layer-preview v-for="id of layerIds" :key="id" :id="id"
@@ -16,20 +17,28 @@
 </template>
 
 <script setup lang="ts">
+// 内部组件
 import Info from '@/components/board/Info.vue'
 import Participants from '@/components/board/Participants.vue'
 import Toolbar from '@/components/board/Toolbar.vue'
 import LayerPreview from '@/components/board/LayerPreview.vue'
 import SelectionBox from "@/components/board/SelectionBox.vue"
+import SelectedTools from "@/components/board/SelectedTools.vue"
+// vue
 import { useRoute } from 'vue-router'
 import { ref, provide, watch } from 'vue'
 
+// 内部方法
 import { pointEventTocavansPoint, resizeBounds } from '@/utils/canvasUtil'
+
+// 类型
 import type { CanvasState, Camera } from "@/types/canvas"
 import { LayerType, CanvasMode } from "@/types/canvas"
 
-
+// store
 import { useCanvasStore } from '@/stores/canvas.ts'
+
+
 const canvasStore = useCanvasStore()
 
 // get layerIds from canvasStore
@@ -84,7 +93,7 @@ const unSelectLayers = () => {
 
 
 /** on Poniter up */
-const onPointertUp = (event: MouseEvent) => {
+const onPointerUp = (event: MouseEvent) => {
     // point 是相对于 camera的
     const point = pointEventTocavansPoint(event, camera.value)
     if (canvasState.value.mode === CanvasMode.None) {
@@ -97,6 +106,7 @@ const onPointertUp = (event: MouseEvent) => {
     else if (canvasState.value.mode === CanvasMode.Inserting) {
         canvasStore.insertLayer(canvasState.value.layerType, point)
     } else {
+        // default up set mode to none
         setCanvasState({ mode: CanvasMode.None })
     }
 }
@@ -133,6 +143,7 @@ const handleLayerPointerDown = (event: PointEvent, layerId: string) => {
 
     // update current layerid
     canvasStore.setCurrentLayerId(layerId)
+    // set mode to translating, and set current point
     setCanvasState({
         mode: CanvasMode.Translating,
         current: point,
@@ -141,8 +152,7 @@ const handleLayerPointerDown = (event: PointEvent, layerId: string) => {
 }
 
 watch(canvasState, (newState, oldState) => {
-    debugger
-    console.log(newState, oldState);
+    // console.log('canvasState changed', newState, oldState);
 }, { deep: true })
 
 
@@ -150,7 +160,7 @@ watch(canvasState, (newState, oldState) => {
 
 /** resize handle */
 const handleResizeHandlePointerDown = (corner: Side, initialBounds: XYWH) => {
-    console.log("canvas[id] handleResizeHandlePointerDown", corner, initialBounds);
+    // console.log("canvas[id] handleResizeHandlePointerDown", corner, initialBounds);
 
     // update state to resizing
     setCanvasState({
@@ -163,16 +173,27 @@ const handleResizeHandlePointerDown = (corner: Side, initialBounds: XYWH) => {
 
 const onPointerMove = (event: MouseEvent) => {
     event.preventDefault()
+    // get currentPoint with camera
+    // point 是相对于 camera的
     const currentPoint = pointEventTocavansPoint(event, camera.value)
 
     if (canvasState.value.mode === CanvasMode.Resizing) {
+        // console.log("this is resizing and we are moving");
+
         resizeSelectedLayer(currentPoint)
+    }
+
+    // mode translating 
+    if (canvasState.value.mode === CanvasMode.Translating) {
+        // console.log("this is translating and we are moving");
+
+        translateSelectedLayer(currentPoint)
     }
 
 }
 
 
-
+// resize selected layer
 const resizeSelectedLayer = (point: Point) => {
     if (canvasState.value.mode !== CanvasMode.Resizing) {
         return
@@ -184,5 +205,31 @@ const resizeSelectedLayer = (point: Point) => {
         point
     )
     canvasStore.updateLayerWithBoundsAndId(canvasStore.currentLayerId, bounds)
+
+}
+
+// translate selected layer
+const translateSelectedLayer = (point: Point) => {
+    // if not translating, return
+    if (canvasState.value.mode !== CanvasMode.Translating) {
+        return;
+    }
+
+    // calculate offset  计算 鼠标移动相对于当前的偏移
+    const offset = {
+        x: point.x - canvasState.value.current.x,
+        y: point.y - canvasState.value.current.y,
+    }
+    // update current point
+
+    canvasStore.updateLayerWithOffsetAndId(canvasStore.currentLayerId, offset)
+
+    // set canvas state, 这里是继续设置为 translating，后面才能持续的move
+    setCanvasState({
+        mode: CanvasMode.Translating,
+        current: point,
+    })
+
+
 }
 </script>

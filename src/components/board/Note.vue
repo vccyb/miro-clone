@@ -1,5 +1,5 @@
 <template>
-  <foreignObject :x="x" :y="y" :width="width" :height="height"
+  <foreignObject :x="layer.x" :y="layer.y" :width="layer.width" :height="layer.height"
     :style="{ backgroundColor: fill ? colorToCss(fill) : '#eca006' }" @pointerdown="handlePointerDown">
     <contenteditable
       :style="{ width: '100%', height: '100%', color: '#000', fontSize: '16px', padding: '10px', overflow: 'hidden' }">
@@ -22,7 +22,7 @@ interface NoteProps {
 
 const props = defineProps<NoteProps>()
 
-const { x = 0, y = 0, width = 100, height = 100, fill } = props?.layer ?? {}
+const { fill } = props?.layer ?? {}
 
 
 const emit = defineEmits<{
