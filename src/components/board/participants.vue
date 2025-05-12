@@ -26,7 +26,7 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { NButton, NAvatar, NTooltip } from 'naive-ui';
 import { useAuthStore } from '@/stores/auth';

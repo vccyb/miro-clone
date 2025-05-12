@@ -132,7 +132,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, h, onMounted, computed, watch, type ComputedRef } from 'vue'
+import { ref, reactive, h, onMounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { NButton, NSelect, NDataTable, useMessage, NSpin, NPagination, NInput, useDialog } from 'naive-ui'
 import type { DataTableColumns } from 'naive-ui'

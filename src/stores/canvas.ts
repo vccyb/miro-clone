@@ -1,34 +1,29 @@
-
-
-import { ref, computed, h } from 'vue'
-import { nanoid } from "nanoid";
+import { ref, computed } from 'vue'
+import { nanoid } from 'nanoid'
 import { defineStore } from 'pinia'
 import type { Point, Color, Layer, XYWH } from '@/types/canvas'
-import { LayerType } from "@/types/canvas"
-type InsertLayerType =
-  | LayerType.Ellipse
-  | LayerType.Rectangle
-  | LayerType.Text
-  | LayerType.Note
-
+import { LayerType } from '@/types/canvas'
+type InsertLayerType = LayerType.Ellipse | LayerType.Rectangle | LayerType.Text | LayerType.Note
 
 export const useCanvasStore = defineStore('canvas-board', () => {
   const layerIds = ref<string[]>([])
-
 
   const layers = ref<Record<string, any>>({})
 
   const currentLayerId = ref<string | null>(null)
 
-
   const lastUsedColor = ref<Color>({
     r: 255,
     g: 255,
-    b: 0
+    b: 0,
   })
 
+  const setLastUsedColor = (color: Color) => {
+    lastUsedColor.value = color
+  }
+
   const insertLayer = (layerType: InsertLayerType, position: Point) => {
-    const layerId = nanoid();
+    const layerId = nanoid()
     layerIds.value.push(layerId)
     const layer = {
       id: layerId,
@@ -37,7 +32,7 @@ export const useCanvasStore = defineStore('canvas-board', () => {
       y: position.y,
       width: 100,
       height: 100,
-      fill: lastUsedColor.value,
+      fill: {...lastUsedColor.value},
     }
     layers.value[layerId] = layer
   }
@@ -51,11 +46,9 @@ export const useCanvasStore = defineStore('canvas-board', () => {
     layer.height = bounds.height
   }
 
-
   const getLayerById = (layerId: string) => {
     return layers.value[layerId]
   }
-
 
   const getCurrentLayer = computed<Layer | null>(() => {
     return currentLayerId.value ? layers.value[currentLayerId.value] : null
@@ -71,7 +64,6 @@ export const useCanvasStore = defineStore('canvas-board', () => {
     currentLayerId.value = layerId
   }
 
-
   const updateLayerWithOffsetAndId = (layerId: string, offset: Point) => {
     const layer = layers.value[layerId]
     if (!layer) return
@@ -80,7 +72,26 @@ export const useCanvasStore = defineStore('canvas-board', () => {
     layer.y += offset.y
   }
 
+  const updateLayerWithColorAndId = (layerId: string, color: Color) => {
+    const layer = layers.value[layerId]
+    if (!layer) return
+    layer.fill.r = color.r
+    layer.fill.g = color.g
+    layer.fill.b = color.b
+  }
 
+
+  const deleteCurrentLayer = () => {
+    if (!currentLayerId.value) return
+    const index = layerIds.value.indexOf(currentLayerId.value)
+    if (index === -1) return
+    // delete layerIds
+    layerIds.value.splice(index, 1)
+    // delete layers
+    delete layers.value[currentLayerId.value]
+    // update currentLayerId
+    currentLayerId.value = null
+  }
 
 
   return {
@@ -91,8 +102,11 @@ export const useCanvasStore = defineStore('canvas-board', () => {
     lastLayer,
     currentLayerId,
     getCurrentLayer,
+    setLastUsedColor,
     setCurrentLayerId,
     updateLayerWithBoundsAndId,
-    updateLayerWithOffsetAndId
+    updateLayerWithOffsetAndId,
+    updateLayerWithColorAndId,
+    deleteCurrentLayer
   }
 })

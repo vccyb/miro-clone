@@ -31,7 +31,7 @@
         :initialTitle="boardTitle" @renamed="handleRenamed" />
 </template>
 
-<script setup>
+<script setup lang="ts">
 import {
     NButton,
     NDivider,
