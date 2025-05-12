@@ -8,6 +8,10 @@ type InsertLayerType = LayerType.Ellipse | LayerType.Rectangle | LayerType.Text 
 export const useCanvasStore = defineStore('canvas-board', () => {
   const layerIds = ref<string[]>([])
 
+  const setLayerIds = (ids: string[]) => {
+    layerIds.value = ids
+  }
+
   const layers = ref<Record<string, any>>({})
 
   const currentLayerId = ref<string | null>(null)
@@ -96,6 +100,7 @@ export const useCanvasStore = defineStore('canvas-board', () => {
 
   return {
     layerIds,
+    setLayerIds,
     layers,
     insertLayer,
     getLayerById,

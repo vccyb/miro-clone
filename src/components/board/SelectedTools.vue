@@ -5,6 +5,30 @@
     :style="transformStyle"
   >
     <ColorPicker @change="handleColorChange"></ColorPicker>
+    <div class="flex flex-col gap-y-0.5">
+      <n-tooltip placement="right" trigger="hover" >
+        <template #trigger>
+          <n-button style="font-size: 24px; width: 16px"  :focusable="false" class="toolbar-btn  flex items-center justify-center" type="default" size="large" :quaternary="true"
+                    @click="handleBringToFront">
+            <template #icon>
+              <iconify-icon icon="lucide:bring-to-front"></iconify-icon>
+            </template>
+          </n-button>
+        </template>
+        {{ "上层一层"}}
+      </n-tooltip>
+      <n-tooltip placement="right" trigger="hover" >
+        <template #trigger>
+          <n-button style="font-size: 24px; width: 16px"  :focusable="false" class="toolbar-btn  flex items-center justify-center" type="default" size="large" :quaternary="true"
+                    @click="handleSendToBack">
+            <template #icon>
+              <iconify-icon icon="lucide:send-to-back"></iconify-icon>
+            </template>
+          </n-button>
+        </template>
+        {{ "下降一层"}}
+      </n-tooltip>
+    </div>
     <div class="flex pl-2 border-l ml-2 items-center  border-neutral-200">
       <n-tooltip placement="right" trigger="hover" >
         <template #trigger>
@@ -82,6 +106,40 @@ const handleDelete = () => {
   if (currentLayer) {
     canvasState.deleteCurrentLayer()
   }
+}
+
+
+
+// to back or to front
+const handleBringToFront = () => {
+  // ids index越往后，渲染越在前面
+  // 1. get currentLayerId
+  const currentLayerId = canvasState.currentLayerId
+  if (!currentLayerId) return // 如果没有选中图层，直接返回
+  // 2. get currentLayerIndex
+  const currentLayerIndex = canvasState.layerIds.indexOf(currentLayerId)
+  // 如果当前图层不在图层列表中，或者已经在最底层，直接返回
+  if (currentLayerIndex === -1 || currentLayerIndex === canvasState.layerIds.length - 1) return
+
+  // 3. bring to front
+  const removedLayerId = canvasState.layerIds.splice(currentLayerIndex, 1)[0];
+  // 将当前图层插入到前一个位置
+  canvasState.layerIds.splice(currentLayerIndex + 1, 0, removedLayerId);
+}
+
+const handleSendToBack = () => {
+  // ids index越往后，渲染越在前面
+  // 1. get currentLayerId
+  const currentLayerId = canvasState.currentLayerId
+  if (!currentLayerId) return // 如果没有选中图层，直接返回
+  // 2. get currentLayerIndex
+  const currentLayerIndex = canvasState.layerIds.indexOf(currentLayerId)
+  if (currentLayerIndex === -1 || currentLayerIndex === 0) return // 如果当前图层不在图层列表中，直接返回
+
+  // 3. bring to front
+  const removedLayerId = canvasState.layerIds.splice(currentLayerIndex, 1)[0];
+  // 将当前图层插入到前一个位置
+  canvasState.layerIds.splice(currentLayerIndex - 1, 0, removedLayerId);
 }
 </script>
 
