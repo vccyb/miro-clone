@@ -14,7 +14,7 @@ export const useCanvasStore = defineStore('canvas-board', () => {
 
   const layers = ref<Record<string, any>>({})
 
-  const currentLayerId = ref<string | null>(null)
+  const currentLayerIds = ref<string[] | null>(null)
 
   const lastUsedColor = ref<Color>({
     r: 255,
@@ -36,7 +36,7 @@ export const useCanvasStore = defineStore('canvas-board', () => {
       y: position.y,
       width: 100,
       height: 100,
-      fill: {...lastUsedColor.value},
+      fill: { ...lastUsedColor.value },
     }
     layers.value[layerId] = layer
   }
@@ -54,8 +54,11 @@ export const useCanvasStore = defineStore('canvas-board', () => {
     return layers.value[layerId]
   }
 
-  const getCurrentLayer = computed<Layer | null>(() => {
-    return currentLayerId.value ? layers.value[currentLayerId.value] : null
+  const getCurrentLayers = computed<Layer[] | null>(() => {
+    if (!currentLayerIds.value) {
+      return null
+    }
+    return currentLayerIds.value.map((id) => layers.value[id])
   })
 
   const lastLayer = computed<Layer | null>(() => {
@@ -64,8 +67,12 @@ export const useCanvasStore = defineStore('canvas-board', () => {
     return layers.value[lastId] || null
   })
 
-  const setCurrentLayerId = (layerId: string | null) => {
-    currentLayerId.value = layerId
+  const setCurrentLayerIds = (layerIds: string[] | null) => {
+    if (!layerIds) {
+      currentLayerIds.value = null
+      return
+    }
+    currentLayerIds.value = [...layerIds]
   }
 
   const updateLayerWithOffsetAndId = (layerId: string, offset: Point) => {
@@ -84,19 +91,18 @@ export const useCanvasStore = defineStore('canvas-board', () => {
     layer.fill.b = color.b
   }
 
-
   const deleteCurrentLayer = () => {
-    if (!currentLayerId.value) return
-    const index = layerIds.value.indexOf(currentLayerId.value)
-    if (index === -1) return
-    // delete layerIds
-    layerIds.value.splice(index, 1)
-    // delete layers
-    delete layers.value[currentLayerId.value]
-    // update currentLayerId
-    currentLayerId.value = null
+    if (!currentLayerIds.value) return
+    for(const id of currentLayerIds.value) {
+      const index = layerIds.value.indexOf(id)
+      if (index === -1) return
+      // delete layerIds
+      layerIds.value.splice(index, 1)
+      // delete layers
+      delete layers.value[id]
+      currentLayerIds.value = null
+    }
   }
-
 
   return {
     layerIds,
@@ -105,13 +111,13 @@ export const useCanvasStore = defineStore('canvas-board', () => {
     insertLayer,
     getLayerById,
     lastLayer,
-    currentLayerId,
-    getCurrentLayer,
+    currentLayerIds,
+    getCurrentLayers,
     setLastUsedColor,
-    setCurrentLayerId,
+    setCurrentLayerIds,
     updateLayerWithBoundsAndId,
     updateLayerWithOffsetAndId,
     updateLayerWithColorAndId,
-    deleteCurrentLayer
+    deleteCurrentLayer,
   }
 })

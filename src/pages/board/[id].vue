@@ -25,7 +25,13 @@
           :id="id"
           @layerPointerDown="handleLayerPointerDown"
         ></layer-preview>
+
         <selection-box @resizeHandlePointerDown="handleResizeHandlePointerDown"></selection-box>
+        <MultiSelect
+          v-if="canvasState.mode === CanvasMode.SelectionNet && canvasState.current != null"
+          :origin="canvasState.origin"
+          :current="canvasState.current"
+        />
       </g>
     </svg>
   </div>
@@ -39,15 +45,20 @@ import Toolbar from '@/components/board/Toolbar.vue'
 import LayerPreview from '@/components/board/LayerPreview.vue'
 import SelectionBox from '@/components/board/SelectionBox.vue'
 import SelectedTools from '@/components/board/SelectedTools.vue'
+import MultiSelect from '@/components/board/MultiSelect.vue'
 // vue
 import { useRoute } from 'vue-router'
 import { ref, provide, watch } from 'vue'
 
 // 内部方法
-import { pointEventTocavansPoint, resizeBounds } from '@/utils/canvasUtil'
+import {
+  findIntersectingLayerWithRectangle,
+  pointEventTocavansPoint,
+  resizeBounds,
+} from '@/utils/canvasUtil'
 
 // 类型
-import type { CanvasState, Camera } from '@/types/canvas'
+import { type CanvasState, type Camera, type Point, Side, type XYWH } from '@/types/canvas'
 import { CanvasMode } from '@/types/canvas'
 
 // store
@@ -63,7 +74,7 @@ const canvasState = ref<CanvasState>({
 })
 const setCanvasState = (state: CanvasState) => {
   if (state.mode === CanvasMode.Inserting || state.mode === CanvasMode.Pencil) {
-    canvasStore.setCurrentLayerId(null)
+    canvasStore.setCurrentLayerIds(null)
   }
   canvasState.value = state
 }
@@ -93,14 +104,17 @@ const handleWheel = (event: WheelEvent) => {
 }
 
 const unSelectLayers = () => {
-  canvasStore.setCurrentLayerId(null)
+  canvasStore.setCurrentLayerIds(null)
 }
 
 /** on Poniter up */
 const onPointerUp = (event: MouseEvent) => {
   // point 是相对于 camera的
   const point = pointEventTocavansPoint(event, camera.value)
-  if (canvasState.value.mode === CanvasMode.None) {
+  if (
+    canvasState.value.mode === CanvasMode.None ||
+    canvasState.value.mode === CanvasMode.Pressing
+  ) {
     unSelectLayers()
     setCanvasState({ mode: CanvasMode.None })
   } else if (canvasState.value.mode === CanvasMode.Pencil) {
@@ -123,6 +137,11 @@ const onPointerDown = (event: MouseEvent) => {
   if (canvasState.value.mode === CanvasMode.Pencil) {
     //TODO
   }
+
+  setCanvasState({
+    mode: CanvasMode.Pressing,
+    origin: point,
+  })
 }
 
 /**
@@ -142,7 +161,11 @@ const handleLayerPointerDown = (event: PointerEvent, layerId: string) => {
   const point = pointEventTocavansPoint(event, camera.value)
 
   // update current layerId
-  canvasStore.setCurrentLayerId(layerId)
+  const currentLayerIds = canvasStore.currentLayerIds
+  if (currentLayerIds === null ||(!currentLayerIds.includes(layerId))) {
+    // 说明是单选
+    canvasStore.setCurrentLayerIds([layerId])
+  }
   // set mode to translating, and set current point
   setCanvasState({
     mode: CanvasMode.Translating,
@@ -182,6 +205,15 @@ const onPointerMove = (event: MouseEvent) => {
     resizeSelectedLayer(currentPoint)
   }
 
+  if (canvasState.value.mode === CanvasMode.Pressing) {
+    // 当你按压的时候，且移动你的鼠标，超过门限制，我们进行设置为 multi select
+    startMultiSelect(currentPoint, canvasState.value.origin)
+  }
+
+  if (canvasState.value.mode === CanvasMode.SelectionNet) {
+    updateSelectionNet(currentPoint, canvasState.value.origin)
+  }
+
   // mode translating
   if (canvasState.value.mode === CanvasMode.Translating) {
     // console.log("this is translating and we are moving");
@@ -197,7 +229,9 @@ const resizeSelectedLayer = (point: Point) => {
   }
 
   const bounds = resizeBounds(canvasState.value.initialBounds, canvasState.value.corner, point)
-  canvasStore.updateLayerWithBoundsAndId(canvasStore.currentLayerId, bounds)
+  const currentLayerIds = canvasStore.currentLayerIds
+  if (!currentLayerIds || currentLayerIds.length > 1) return
+  canvasStore.updateLayerWithBoundsAndId(currentLayerIds[0], bounds)
 }
 
 // translate selected layer
@@ -214,12 +248,45 @@ const translateSelectedLayer = (point: Point) => {
   }
   // update current point
 
-  canvasStore.updateLayerWithOffsetAndId(canvasStore.currentLayerId, offset)
+  const currentLayerIds = canvasStore.currentLayerIds
+  if (!currentLayerIds) return
+  for( const id of currentLayerIds) {
+    canvasStore.updateLayerWithOffsetAndId(id, offset)
+  }
 
   // set canvas state, 这里是继续设置为 translating，后面才能持续的move
   setCanvasState({
     mode: CanvasMode.Translating,
     current: point,
   })
+}
+
+// multi select
+const startMultiSelect = (current: Point, origin: Point) => {
+  if (Math.abs(current.x - origin.x) + Math.abs(current.y - origin.y) < 5) {
+    setCanvasState({
+      mode: CanvasMode.SelectionNet,
+      origin,
+      current,
+    })
+  }
+}
+
+const updateSelectionNet = (current: Point, origin: Point) => {
+  setCanvasState({
+    mode: CanvasMode.SelectionNet,
+    origin,
+    current,
+  })
+
+  const ids = findIntersectingLayerWithRectangle(
+    canvasStore.layerIds,
+    canvasStore.layers,
+    canvasState.value.origin,
+    canvasState.value.current,
+  )
+
+  canvasStore.setCurrentLayerIds(ids)
+
 }
 </script>

@@ -3,8 +3,8 @@
         <toolbarButton label="选择工具" icon="lucide:mouse-pointer-2"
             :onClick="() => setCanvasState({ mode: CanvasMode.None })" :isActive="canvasState.mode === CanvasMode.None ||
                 canvasState.mode === CanvasMode.Translating ||
-                canvasState.mode === CanvasMode.SelecctionNet ||
-                canvasState.mode === CanvasMode.Pressinng ||
+                canvasState.mode === CanvasMode.SelectionNet ||
+                canvasState.mode === CanvasMode.Pressing ||
                 canvasState.mode === CanvasMode.Resizing
                 " />
 

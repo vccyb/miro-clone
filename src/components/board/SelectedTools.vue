@@ -1,6 +1,6 @@
 <template>
   <div
-    v-if="currentLayer"
+    v-if="currentLayerIds"
     class="absolute p-3 rounded-xl bg-white shadow-sm flex select-none"
     :style="transformStyle"
   >
@@ -58,7 +58,8 @@ import { computed } from 'vue'
 import { useCanvasStore } from '@/stores/canvas.ts'
 
 // types
-import type { Camera, Color } from '@/types/canvas.ts'
+import { type Camera, type Color, XYWH } from '@/types/canvas.ts'
+import { boundingBox } from '@/hook/useSelectionBounds.ts'
 
 // props
 interface SelectedToolsProps {
@@ -67,21 +68,32 @@ interface SelectedToolsProps {
 
 const props = defineProps<SelectedToolsProps>()
 
-const canvasState = useCanvasStore()
+const canvasStore = useCanvasStore()
 
-// get selected layer's bound
-const currentLayer = computed(() => {
-  return canvasState.getCurrentLayer
+
+
+
+const currentLayerIds = computed(() => canvasStore.currentLayerIds)
+const bounds = computed<XYWH | null>(() => {
+  if (!currentLayerIds.value) return null
+  const layers = []
+  for (const id of currentLayerIds.value) {
+    const layer = canvasStore.getLayerById(id)
+    if (layer) {
+      layers.push(layer)
+    }
+  }
+  return boundingBox(layers)
 })
 
 const x = computed(() => {
-  if(!currentLayer.value) return 0
-  return currentLayer.value?.x + currentLayer.value?.width / 2 + props.camera.x
+  if(!bounds.value) return 0
+  return bounds.value?.x + bounds.value?.width / 2 + props.camera.x
 })
 
 const y = computed(() => {
-  if(!currentLayer.value) return 0
-  return currentLayer.value?.y + props.camera.y
+  if(!bounds.value) return 0
+  return bounds.value?.y + props.camera.y
 })
 
 const transformStyle = computed(() => ({
@@ -91,20 +103,20 @@ const transformStyle = computed(() => ({
 // color
 const handleColorChange = (color: Color) => {
   // 1. update current layer's color
-  const currentLayer = canvasState.getCurrentLayer
-  if (currentLayer) {
-    canvasState.updateLayerWithColorAndId(currentLayer.id, color)
+  const currentLayerIds = canvasStore.currentLayerIds
+  if (currentLayerIds && currentLayerIds.length === 1) {
+    canvasStore.updateLayerWithColorAndId(currentLayerIds[0], color)
   }
   // 2. update last used color
-  canvasState.setLastUsedColor(color)
+  canvasStore.setLastUsedColor(color)
 }
 
 
 // delete
 const handleDelete = () => {
-  const currentLayer = canvasState.getCurrentLayer
-  if (currentLayer) {
-    canvasState.deleteCurrentLayer()
+  const currentLayerIds = canvasStore.currentLayerIds
+  if (currentLayerIds) {
+    canvasStore.deleteCurrentLayer()
   }
 }
 
@@ -114,32 +126,35 @@ const handleDelete = () => {
 const handleBringToFront = () => {
   // ids index越往后，渲染越在前面
   // 1. get currentLayerId
-  const currentLayerId = canvasState.currentLayerId
-  if (!currentLayerId) return // 如果没有选中图层，直接返回
+  const currentLayerIds = canvasStore.currentLayerIds
+  if (!currentLayerIds ) return // 如果没有选中图层，直接返回
   // 2. get currentLayerIndex
-  const currentLayerIndex = canvasState.layerIds.indexOf(currentLayerId)
-  // 如果当前图层不在图层列表中，或者已经在最底层，直接返回
-  if (currentLayerIndex === -1 || currentLayerIndex === canvasState.layerIds.length - 1) return
-
-  // 3. bring to front
-  const removedLayerId = canvasState.layerIds.splice(currentLayerIndex, 1)[0];
-  // 将当前图层插入到前一个位置
-  canvasState.layerIds.splice(currentLayerIndex + 1, 0, removedLayerId);
+  // 遍历所有的选中图层，进行操作
+  for (const currentLayerId of currentLayerIds) {
+    const currentLayerIndex = canvasStore.layerIds.indexOf(currentLayerId)
+    if (currentLayerIndex === -1 || currentLayerIndex === canvasStore.layerIds.length - 1) continue
+    // 3. bring to front
+    const removedLayerId = canvasStore.layerIds.splice(currentLayerIndex, 1)[0];
+    // 将当前图层插入到前一个位置
+    canvasStore.layerIds.splice(currentLayerIndex + 1, 0, removedLayerId);
+  }
 }
 
 const handleSendToBack = () => {
   // ids index越往后，渲染越在前面
   // 1. get currentLayerId
-  const currentLayerId = canvasState.currentLayerId
-  if (!currentLayerId) return // 如果没有选中图层，直接返回
+  const currentLayerIds = canvasStore.currentLayerIds
+  if (!currentLayerIds) return // 如果没有选中图层，直接返回
   // 2. get currentLayerIndex
-  const currentLayerIndex = canvasState.layerIds.indexOf(currentLayerId)
-  if (currentLayerIndex === -1 || currentLayerIndex === 0) return // 如果当前图层不在图层列表中，直接返回
-
-  // 3. bring to front
-  const removedLayerId = canvasState.layerIds.splice(currentLayerIndex, 1)[0];
-  // 将当前图层插入到前一个位置
-  canvasState.layerIds.splice(currentLayerIndex - 1, 0, removedLayerId);
+  // 遍历所有的选中图层，进行操作
+  for (const currentLayerId of currentLayerIds) {
+    const currentLayerIndex = canvasStore.layerIds.indexOf(currentLayerId)
+    if (currentLayerIndex === -1 || currentLayerIndex === 0) continue
+    // 3. bring to front
+    const removedLayerId = canvasStore.layerIds.splice(currentLayerIndex, 1)[0];
+    // 将当前图层插入到前一个位置
+    canvasStore.layerIds.splice(currentLayerIndex - 1, 0, removedLayerId);
+  }
 }
 </script>
 
