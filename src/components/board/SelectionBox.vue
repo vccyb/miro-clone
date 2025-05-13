@@ -145,6 +145,15 @@ const bounds = computed<XYWH | null>(() => {
 
 const isShowingHandles = ref<boolean>(true)
 
+// 多个的时候就不支持缩放，这里就不能展示
+watch(currentLayerIds, () => {
+  if (currentLayerIds.value?.length === 1) {
+    isShowingHandles.value = true
+  } else {
+    isShowingHandles.value = false
+  }
+})
+
 
 </script>
 

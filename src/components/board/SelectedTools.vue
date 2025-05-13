@@ -58,7 +58,7 @@ import { computed } from 'vue'
 import { useCanvasStore } from '@/stores/canvas.ts'
 
 // types
-import { type Camera, type Color, XYWH } from '@/types/canvas.ts'
+import { type Camera, type Color, type XYWH } from '@/types/canvas.ts'
 import { boundingBox } from '@/hook/useSelectionBounds.ts'
 
 // props
@@ -128,16 +128,9 @@ const handleBringToFront = () => {
   // 1. get currentLayerId
   const currentLayerIds = canvasStore.currentLayerIds
   if (!currentLayerIds ) return // 如果没有选中图层，直接返回
-  // 2. get currentLayerIndex
-  // 遍历所有的选中图层，进行操作
-  for (const currentLayerId of currentLayerIds) {
-    const currentLayerIndex = canvasStore.layerIds.indexOf(currentLayerId)
-    if (currentLayerIndex === -1 || currentLayerIndex === canvasStore.layerIds.length - 1) continue
-    // 3. bring to front
-    const removedLayerId = canvasStore.layerIds.splice(currentLayerIndex, 1)[0];
-    // 将当前图层插入到前一个位置
-    canvasStore.layerIds.splice(currentLayerIndex + 1, 0, removedLayerId);
-  }
+ // 移动到数组的最后面，且current的内的保持顺序
+  const newLayerIds = [...canvasStore.layerIds.filter(id => !currentLayerIds.includes(id)),...currentLayerIds];
+  canvasStore.setLayerIds(newLayerIds);
 }
 
 const handleSendToBack = () => {
@@ -145,16 +138,8 @@ const handleSendToBack = () => {
   // 1. get currentLayerId
   const currentLayerIds = canvasStore.currentLayerIds
   if (!currentLayerIds) return // 如果没有选中图层，直接返回
-  // 2. get currentLayerIndex
-  // 遍历所有的选中图层，进行操作
-  for (const currentLayerId of currentLayerIds) {
-    const currentLayerIndex = canvasStore.layerIds.indexOf(currentLayerId)
-    if (currentLayerIndex === -1 || currentLayerIndex === 0) continue
-    // 3. bring to front
-    const removedLayerId = canvasStore.layerIds.splice(currentLayerIndex, 1)[0];
-    // 将当前图层插入到前一个位置
-    canvasStore.layerIds.splice(currentLayerIndex - 1, 0, removedLayerId);
-  }
+  const newLayerIds = [...currentLayerIds, ...canvasStore.layerIds.filter(id => !currentLayerIds.includes(id))];
+  canvasStore.setLayerIds(newLayerIds);
 }
 </script>
 

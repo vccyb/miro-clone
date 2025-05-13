@@ -61,14 +61,17 @@ import {
 import { type CanvasState, type Camera, type Point, Side, type XYWH } from '@/types/canvas'
 import { CanvasMode } from '@/types/canvas'
 
+import {computed} from 'vue'
+
 // store
 import { useCanvasStore } from '@/stores/canvas.ts'
 
 const canvasStore = useCanvasStore()
 
 // get layerIds from canvasStore
-const layerIds = canvasStore.layerIds
-
+const layerIds = computed(() => {
+  return canvasStore.layerIds
+})
 const canvasState = ref<CanvasState>({
   mode: CanvasMode.None,
 })
