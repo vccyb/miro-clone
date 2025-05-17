@@ -34,6 +34,9 @@ const previewComponentName = computed(() => {
         case LayerType.Note:
             return "note"
             break;
+        case LayerType.Text:
+            return "text"
+            break;
         default:
             return null
     }

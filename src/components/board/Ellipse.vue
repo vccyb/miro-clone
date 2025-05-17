@@ -12,7 +12,7 @@ import { colorToCss } from "@/utils/canvasUtil.ts";
 
 interface EllipseProps {
   id?: string
-  layer?: EllipaseLayer
+  layer: EllipaseLayer
   selectionColor?: string;
 }
 const props = defineProps<EllipseProps>()

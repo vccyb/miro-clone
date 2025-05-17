@@ -104,8 +104,8 @@ const transformStyle = computed(() => ({
 const handleColorChange = (color: Color) => {
   // 1. update current layer's color
   const currentLayerIds = canvasStore.currentLayerIds
-  if (currentLayerIds && currentLayerIds.length === 1) {
-    canvasStore.updateLayerWithColorAndId(currentLayerIds[0], color)
+  if (currentLayerIds) {
+    canvasStore.updateLayerWithColorAndId(currentLayerIds, color)
   }
   // 2. update last used color
   canvasStore.setLastUsedColor(color)

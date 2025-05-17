@@ -143,7 +143,7 @@ const bounds = computed<XYWH | null>(() => {
   return boundingBox(layers)
 })
 
-const isShowingHandles = ref<boolean>(true)
+const isShowingHandles = ref<boolean>(false)
 
 // 多个的时候就不支持缩放，这里就不能展示
 watch(currentLayerIds, () => {

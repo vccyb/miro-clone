@@ -24,7 +24,7 @@ export type RectangleLayer = {
     y: number
     height: number
     width: number
-    full: Color
+    fill: Color
     value?: string
 }
 
@@ -46,7 +46,7 @@ export type PathLayer = {
     y: number
     height: number
     width: number
-    full: Color
+    fill: Color
     points: number[][]
     value?: string
 }
@@ -59,7 +59,7 @@ export type TextLayer = {
     y: number
     height: number
     width: number
-    full: Color
+    fill: Color
     value?: string
 }
 
@@ -70,7 +70,7 @@ export type NoteLayer = {
     y: number
     height: number
     width: number
-    full: Color
+    fill: Color
     value?: string
 }
 
