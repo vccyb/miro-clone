@@ -1,4 +1,11 @@
-import type { Camera, Color, Layer, Point, XYWH } from '@/types/canvas'
+import {
+  type Camera,
+  type Color,
+  type Layer,
+  LayerType,
+  type Point,
+  type XYWH
+} from '@/types/canvas'
 import { Side } from '@/types/canvas'
 export function pointEventTocavansPoint(e: MouseEvent, camera: Camera) {
   const x = Math.round(e.clientX) - camera.x
@@ -100,4 +107,44 @@ export function findIntersectingLayerWithRectangle(
 export function getConstrastingTextColor(color: Color) {
   const luminance = 0.299 * color.r + 0.578 * color.g + 0.114 * color.b;
   return luminance > 182 ? "black" : "white";
+}
+
+
+
+export function penPointsToPathLayer(points: number[][], color: Color) {
+  if (points.length < 2) {
+    throw new Error('Cannot transform points with less 2 points')
+  }
+
+  let left = Number.POSITIVE_INFINITY
+  let top = Number.POSITIVE_INFINITY
+  let right = Number.NEGATIVE_INFINITY
+  let bottom = Number.NEGATIVE_INFINITY
+
+  for (const point of points) {
+    const [x, y] = point
+
+    if (left > x) {
+      left = x
+    }
+    if (top > y) {
+      top = y
+    }
+    if (right < x) {
+      right = x
+    }
+    if (bottom < y) {
+      bottom = y
+    }
+  }
+
+  return {
+    type: LayerType.Path,
+    x: left,
+    y: top,
+    width: right - left,
+    height: bottom - top,
+    fill: color,
+    points: points.map(([x, y, pressure]) => [x - left, y - top, pressure]),
+  }
 }

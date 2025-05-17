@@ -1,17 +1,34 @@
 <template>
-  <foreignObject :x="layer.x" :y="layer.y" :width="layer.width" :height="layer.height"
-    :style="{ backgroundColor: fill ? colorToCss(fill) : '#fff9b1' }" @pointerdown="handlePointerDown"
-    class="shadow-md drop-shadow-xl">
-    <div @wheel.stop="() => { }" class="kalam-font h-full w-full" :style="{
-    color: `${fill ? getConstrastingTextColor(fill) : '#000'}`,
-    fontSize: `${calculateFontSize(layer.width, layer.height)}px`,
-    overflow: 'hidden'
-  }">
-      <n-input :style="{
-    backgroundColor: layer.fill ? colorToCss(layer.fill) : '#fff9b1',
-    fontSize: `${calculateFontSize(layer.width, layer.height)}px`,
-  }" v-model:value="noteContent" type="textarea" :autosize="false" :readonly="!editFlag" @blur="handleBlur"
-        class="note-textarea h-full w-full" />
+  <foreignObject
+    :x="layer.x"
+    :y="layer.y"
+    :width="layer.width"
+    :height="layer.height"
+    :style="{ backgroundColor: fill ? colorToCss(fill) : '#fff9b1' }"
+    @pointerdown="handlePointerDown"
+    class="shadow-md drop-shadow-xl"
+  >
+    <div
+      @wheel.stop="() => {}"
+      class="kalam-font h-full w-full"
+      :style="{
+        color: `${fill ? getConstrastingTextColor(fill) : '#000'}`,
+        fontSize: `${calculateFontSize(layer.width, layer.height)}px`,
+        overflow: 'hidden',
+      }"
+    >
+      <n-input
+        :style="{
+          backgroundColor: layer.fill ? colorToCss(layer.fill) : '#fff9b1',
+          fontSize: `${calculateFontSize(layer.width, layer.height)}px`,
+        }"
+        v-model:value="noteContent"
+        type="textarea"
+        :autosize="false"
+        :readonly="!editFlag"
+        @blur="handleBlur"
+        class="note-textarea h-full w-full"
+      />
     </div>
   </foreignObject>
 </template>
@@ -87,7 +104,7 @@ const calculateFontSize = (width: number, height: number) => {
 }
 
 .note-textarea :deep(.n-input__placeholder) {
-  left: 10px!important;
+  left: 10px !important;
 }
 .note-textarea :deep(.n-input__textarea-el) {
   background-color: transparent !important;

@@ -143,11 +143,11 @@ const bounds = computed<XYWH | null>(() => {
   return boundingBox(layers)
 })
 
-const isShowingHandles = ref<boolean>(false)
+const isShowingHandles = ref<boolean>(false )
 
 // 多个的时候就不支持缩放，这里就不能展示
 watch(currentLayerIds, () => {
-  if (currentLayerIds.value?.length === 1) {
+  if (currentLayerIds.value?.length === 1 && canvasStore.getLayerById(currentLayerIds.value[0]).type !== LayerType.Path ) {
     isShowingHandles.value = true
   } else {
     isShowingHandles.value = false

@@ -61,7 +61,7 @@ import {
 import { type CanvasState, type Camera, type Point, Side, type XYWH } from '@/types/canvas'
 import { CanvasMode } from '@/types/canvas'
 
-import {computed} from 'vue'
+import { computed } from 'vue'
 
 // store
 import { useCanvasStore } from '@/stores/canvas.ts'
@@ -110,6 +110,32 @@ const unSelectLayers = () => {
   canvasStore.setCurrentLayerIds(null)
 }
 
+const startDrawing = (point: Point, pressure: number) => {
+  canvasStore.setPencilState({
+    pencilDraft: [[point.x, point.y, pressure]],
+    pencilColor: canvasStore.lastUsedColor,
+  })
+}
+
+const continueDrawing = (point: Point, event: MouseEvent) => {
+  if (canvasState.value.mode !== CanvasMode.Pencil) {
+    return
+  }
+  const pencilState = canvasStore.pencilState
+  const { pencilDraft } = pencilState
+  if (pencilDraft === null) {
+    return
+  }
+  const newState = {
+    ...pencilState,
+    pencilDraft:
+      pencilDraft.length === 1 && pencilDraft[0][0] === point.x && pencilDraft[0][1] === point.y
+        ? pencilDraft
+        : [...pencilDraft, [point.x, point.y, event.pressure]],
+  }
+  canvasStore.setPencilState(newState)
+}
+
 /** on Poniter up */
 const onPointerUp = (event: MouseEvent) => {
   // point 是相对于 camera的
@@ -121,7 +147,8 @@ const onPointerUp = (event: MouseEvent) => {
     unSelectLayers()
     setCanvasState({ mode: CanvasMode.None })
   } else if (canvasState.value.mode === CanvasMode.Pencil) {
-    return //TODO
+    canvasStore.insertPath()
+    setCanvasState({ mode: CanvasMode.Pencil });
   } else if (canvasState.value.mode === CanvasMode.Inserting) {
     canvasStore.insertLayer(canvasState.value.layerType, point)
   } else {
@@ -138,7 +165,8 @@ const onPointerDown = (event: MouseEvent) => {
   }
 
   if (canvasState.value.mode === CanvasMode.Pencil) {
-    console.log('draw')
+    startDrawing(point, event.pressure)
+    return
   }
 
   setCanvasState({
@@ -165,7 +193,7 @@ const handleLayerPointerDown = (event: PointerEvent, layerId: string) => {
 
   // update current layerId
   const currentLayerIds = canvasStore.currentLayerIds
-  if (currentLayerIds === null ||(!currentLayerIds.includes(layerId))) {
+  if (currentLayerIds === null || !currentLayerIds.includes(layerId)) {
     // 说明是单选
     canvasStore.setCurrentLayerIds([layerId])
   }
@@ -223,6 +251,10 @@ const onPointerMove = (event: MouseEvent) => {
 
     translateSelectedLayer(currentPoint)
   }
+
+  if (canvasState.value.mode === CanvasMode.Pencil) {
+    continueDrawing(currentPoint, event)
+  }
 }
 
 // resize selected layer
@@ -253,7 +285,7 @@ const translateSelectedLayer = (point: Point) => {
 
   const currentLayerIds = canvasStore.currentLayerIds
   if (!currentLayerIds) return
-  for( const id of currentLayerIds) {
+  for (const id of currentLayerIds) {
     canvasStore.updateLayerWithOffsetAndId(id, offset)
   }
 
@@ -290,6 +322,5 @@ const updateSelectionNet = (current: Point, origin: Point) => {
   )
 
   canvasStore.setCurrentLayerIds(ids)
-
 }
 </script>

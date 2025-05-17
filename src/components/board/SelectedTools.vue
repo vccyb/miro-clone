@@ -105,6 +105,7 @@ const handleColorChange = (color: Color) => {
   // 1. update current layer's color
   const currentLayerIds = canvasStore.currentLayerIds
   if (currentLayerIds) {
+    console.log(Date.now(), "currentLayerIds", currentLayerIds)
     canvasStore.updateLayerWithColorAndId(currentLayerIds, color)
   }
   // 2. update last used color

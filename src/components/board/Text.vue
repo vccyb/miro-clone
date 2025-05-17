@@ -1,12 +1,28 @@
 <template>
-  <foreignObject :x="layer.x" :y="layer.y" :width="layer.width" :height="layer.height" @pointerdown="handlePointerDown">
-    <div @wheel.stop="() => { }" class="h-full w-full" :style="{
-    overflow: 'hidden'
-  }">
-      <textarea v-model="textContent"  :readonly="!editFlag" @blur="handleBlur" class="text-area h-full w-full kalam-font" :style="{
-    fontSize: `${calculateFontSize(layer.width, layer.height)}px`,
-    color: layer.fill ? colorToCss(layer.fill) : '#000',
-  }"></textarea>
+  <foreignObject
+    :x="layer.x"
+    :y="layer.y"
+    :width="layer.width"
+    :height="layer.height"
+    @pointerdown="handlePointerDown"
+  >
+    <div
+      @wheel.stop="() => {}"
+      class="h-full w-full"
+      :style="{
+        overflow: 'hidden',
+      }"
+    >
+      <textarea
+        v-model="textContent"
+        :readonly="!editFlag"
+        @blur="handleBlur"
+        class="text-area h-full w-full kalam-font"
+        :style="{
+          fontSize: `${calculateFontSize(layer.width, layer.height)}px`,
+          color: layer.fill ? colorToCss(layer.fill) : '#000',
+        }"
+      ></textarea>
     </div>
   </foreignObject>
 </template>
@@ -53,13 +69,13 @@ const handleBlur = () => {
 }
 
 const calculateFontSize = (width: number, height: number) => {
-  const maxFontSize = 96;
-  const scaleFactor = 0.5;
-  const fontSizeBaseOnHeight = height * scaleFactor;
-  const fontSizeBaseOnWidth = width * scaleFactor;
+  const maxFontSize = 96
+  const scaleFactor = 0.5
+  const fontSizeBaseOnHeight = height * scaleFactor
+  const fontSizeBaseOnWidth = width * scaleFactor
 
-  return Math.min(maxFontSize, fontSizeBaseOnHeight, fontSizeBaseOnWidth);
-};
+  return Math.min(maxFontSize, fontSizeBaseOnHeight, fontSizeBaseOnWidth)
+}
 </script>
 
 <style scoped>

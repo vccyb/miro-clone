@@ -1,8 +1,10 @@
-import { ref, computed } from 'vue'
+import { computed, ref, toRefs } from 'vue'
 import { nanoid } from 'nanoid'
 import { defineStore } from 'pinia'
-import type { Point, Color, Layer, XYWH } from '@/types/canvas'
+import type { Color, Layer, Point, XYWH } from '@/types/canvas'
 import { LayerType } from '@/types/canvas'
+import { penPointsToPathLayer } from '@/utils/canvasUtil.ts'
+
 type InsertLayerType = LayerType.Ellipse | LayerType.Rectangle | LayerType.Text | LayerType.Note
 
 export const useCanvasStore = defineStore('canvas-board', () => {
@@ -22,6 +24,15 @@ export const useCanvasStore = defineStore('canvas-board', () => {
     b: 0,
   })
 
+  const pencilState = ref<any>({
+    pencilDraft: [],
+    pencilColor: null,
+  })
+
+  const setPencilState = (state: any) => {
+    pencilState.value = state
+  }
+
   const setLastUsedColor = (color: Color) => {
     lastUsedColor.value = color
   }
@@ -39,6 +50,24 @@ export const useCanvasStore = defineStore('canvas-board', () => {
       fill: { ...lastUsedColor.value },
     }
     layers.value[layerId] = layer
+  }
+
+  const insertPath = () => {
+    const pencilDraft = pencilState.value.pencilDraft
+    if (pencilDraft === null || pencilDraft.length < 2) {
+      pencilState.value.pencilDraft = null
+      return
+    }
+
+    const layerId = nanoid()
+    layerIds.value.push(layerId)
+    const tempLayer = penPointsToPathLayer(pencilDraft, lastUsedColor.value)
+    layers.value[layerId] = {
+      ...tempLayer,
+      id: layerId,
+    }
+    // 插入完就清空
+    pencilState.value.pencilDraft = null
   }
 
   const updateLayerWithBoundsAndId = (layerId: string, bounds: XYWH) => {
@@ -83,8 +112,8 @@ export const useCanvasStore = defineStore('canvas-board', () => {
     layer.y += offset.y
   }
 
-  const updateLayerWithColorAndId = (layerIds: string[], color: Color) => {
-    for (const layerId of layerIds) {
+  const updateLayerWithColorAndId = (ids: string[], color: Color) => {
+    for (const layerId of ids) {
       const layer = layers.value[layerId]
       if (!layer) continue
       layer.fill.r = color.r
@@ -117,10 +146,12 @@ export const useCanvasStore = defineStore('canvas-board', () => {
     setLayerIds,
     layers,
     insertLayer,
+    insertPath,
     getLayerById,
     lastLayer,
     currentLayerIds,
     getCurrentLayers,
+    lastUsedColor,
     setLastUsedColor,
     setCurrentLayerIds,
     updateLayerWithBoundsAndId,
@@ -128,5 +159,7 @@ export const useCanvasStore = defineStore('canvas-board', () => {
     updateLayerWithColorAndId,
     updateLayerWithValueAndId,
     deleteCurrentLayer,
+    pencilState,
+    setPencilState,
   }
 })
