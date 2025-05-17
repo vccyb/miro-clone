@@ -1,1 +1,10 @@
 @import "tailwindcss";
+:root {
+    --kalam-font: 'Kalam', cursive;
+}
+
+.kalam-font {
+    font-family: var(--kalam-font);
+    font-display: swap; /* 防止布局偏移 */
+}
+

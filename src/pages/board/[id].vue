@@ -138,7 +138,7 @@ const onPointerDown = (event: MouseEvent) => {
   }
 
   if (canvasState.value.mode === CanvasMode.Pencil) {
-    //TODO
+    console.log('draw')
   }
 
   setCanvasState({

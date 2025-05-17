@@ -34,9 +34,9 @@ export const useCanvasStore = defineStore('canvas-board', () => {
       type: layerType,
       x: position.x,
       y: position.y,
-      width: 100,
-      height: 100,
-        fill: { ...lastUsedColor.value },
+      width: 120,
+      height: 120,
+      fill: { ...lastUsedColor.value },
     }
     layers.value[layerId] = layer
   }
@@ -101,7 +101,7 @@ export const useCanvasStore = defineStore('canvas-board', () => {
 
   const deleteCurrentLayer = () => {
     if (!currentLayerIds.value) return
-    for(const id of currentLayerIds.value) {
+    for (const id of currentLayerIds.value) {
       const index = layerIds.value.indexOf(id)
       if (index === -1) return
       // delete layerIds
