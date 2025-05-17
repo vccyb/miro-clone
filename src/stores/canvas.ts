@@ -54,6 +54,7 @@ export const useCanvasStore = defineStore('canvas-board', () => {
 
   const insertPath = () => {
     const pencilDraft = pencilState.value.pencilDraft
+    const pencilColor = pencilState.value.pencilColor
     if (pencilDraft === null || pencilDraft.length < 2) {
       pencilState.value.pencilDraft = null
       return
@@ -61,7 +62,7 @@ export const useCanvasStore = defineStore('canvas-board', () => {
 
     const layerId = nanoid()
     layerIds.value.push(layerId)
-    const tempLayer = penPointsToPathLayer(pencilDraft, lastUsedColor.value)
+    const tempLayer = penPointsToPathLayer(pencilDraft, pencilColor)
     layers.value[layerId] = {
       ...tempLayer,
       id: layerId,

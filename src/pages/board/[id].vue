@@ -32,6 +32,13 @@
           :origin="canvasState.origin"
           :current="canvasState.current"
         />
+        <PathDraft
+          v-if="pencilState.pencilDraft !== null"
+          :points="pencilState.pencilDraft"
+          :fill="colorToCss(canvasStore.lastUsedColor)"
+          :x="0"
+          :y="0"
+        ></PathDraft>
       </g>
     </svg>
   </div>
@@ -46,12 +53,14 @@ import LayerPreview from '@/components/board/LayerPreview.vue'
 import SelectionBox from '@/components/board/SelectionBox.vue'
 import SelectedTools from '@/components/board/SelectedTools.vue'
 import MultiSelect from '@/components/board/MultiSelect.vue'
+import PathDraft from '@/components/board/PathDraft.vue'
 // vue
 import { useRoute } from 'vue-router'
 import { ref, provide, watch } from 'vue'
 
 // 内部方法
 import {
+  colorToCss,
   findIntersectingLayerWithRectangle,
   pointEventTocavansPoint,
   resizeBounds,
@@ -75,6 +84,9 @@ const layerIds = computed(() => {
 const canvasState = ref<CanvasState>({
   mode: CanvasMode.None,
 })
+
+const pencilState = computed(() => canvasStore.pencilState)
+
 const setCanvasState = (state: CanvasState) => {
   if (state.mode === CanvasMode.Inserting || state.mode === CanvasMode.Pencil) {
     canvasStore.setCurrentLayerIds(null)
@@ -113,7 +125,7 @@ const unSelectLayers = () => {
 const startDrawing = (point: Point, pressure: number) => {
   canvasStore.setPencilState({
     pencilDraft: [[point.x, point.y, pressure]],
-    pencilColor: canvasStore.lastUsedColor,
+    pencilColor: Object.assign({}, canvasStore.lastUsedColor),
   })
 }
 
@@ -123,7 +135,7 @@ const continueDrawing = (point: Point, event: MouseEvent) => {
   }
   const pencilState = canvasStore.pencilState
   const { pencilDraft } = pencilState
-  if (pencilDraft === null) {
+  if (pencilDraft === null || pencilDraft.length === 0) {
     return
   }
   const newState = {
@@ -148,7 +160,7 @@ const onPointerUp = (event: MouseEvent) => {
     setCanvasState({ mode: CanvasMode.None })
   } else if (canvasState.value.mode === CanvasMode.Pencil) {
     canvasStore.insertPath()
-    setCanvasState({ mode: CanvasMode.Pencil });
+    setCanvasState({ mode: CanvasMode.Pencil })
   } else if (canvasState.value.mode === CanvasMode.Inserting) {
     canvasStore.insertLayer(canvasState.value.layerType, point)
   } else {
