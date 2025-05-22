@@ -157,3 +157,19 @@ export const deleteBoard = async (boardId: string): Promise<boolean> => {
     }
     return true
 }
+
+
+
+/**
+ * 保存白板内容
+ */
+export const saveCanvasContent = async (boardId: string, content: string): Promise<boolean> => {
+    const { error } = await supabase.from('boards')
+        .update({ content })
+        .eq('id', boardId)
+    if (error) {
+        console.error('保存白板内容失败:', error)
+        return false
+    }
+    return true
+}

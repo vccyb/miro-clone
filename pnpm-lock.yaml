@@ -8,6 +8,9 @@ dependencies:
   '@tailwindcss/vite':
     specifier: ^4.0.8
     version: 4.0.8(vite@6.1.1)
+  '@vueuse/core':
+    specifier: ^13.2.0
+    version: 13.2.0(vue@3.5.13)
   iconify-icon:
     specifier: ^2.3.0
     version: 2.3.0
@@ -1456,6 +1459,10 @@ packages:
     resolution: {integrity: sha512-/Ad8+nIOV7Rl++6f1BdKxFSMgmoqEoYbHRpPcx3JEfv8VRsQe9Z4mCXeJBzxs7mbHY/XOZZuXlRNfhpVPbs6ZA==}
     dev: true
 
+  /@types/web-bluetooth@0.0.21:
+    resolution: {integrity: sha512-oIQLCGWtcFZy2JW77j9k8nHzAOpqMHLQejDA48XXMWH6tjCQHz5RCFz1bzsmROyL6PUm+LLnUiI4BCn221inxA==}
+    dev: false
+
   /@types/ws@8.5.14:
     resolution: {integrity: sha512-bd/YFLW+URhBzMXurx7lWByOu+xzU9+kb3RboOteXYDfW+tr+JZa99OyNmPINEGB/ahzKrEuc8rcv4gnpJmxTw==}
     dependencies:
@@ -1781,6 +1788,29 @@ packages:
       typescript: 5.7.3
       vue: 3.5.13(typescript@5.7.3)
     dev: true
+
+  /@vueuse/core@13.2.0(vue@3.5.13):
+    resolution: {integrity: sha512-n5TZoIAxbWAQ3PqdVPDzLgIRQOujFfMlatdI+f7ditSmoEeNpPBvp7h2zamzikCmrhFIePAwdEQB6ENccHr7Rg==}
+    peerDependencies:
+      vue: ^3.5.0
+    dependencies:
+      '@types/web-bluetooth': 0.0.21
+      '@vueuse/metadata': 13.2.0
+      '@vueuse/shared': 13.2.0(vue@3.5.13)
+      vue: 3.5.13(typescript@5.7.3)
+    dev: false
+
+  /@vueuse/metadata@13.2.0:
+    resolution: {integrity: sha512-kPpzuQCU0+D8DZCzK0iPpIcXI+6ufWSgwnjJ6//GNpEn+SHViaCtR+XurzORChSgvpHO9YC8gGM97Y1kB+UabA==}
+    dev: false
+
+  /@vueuse/shared@13.2.0(vue@3.5.13):
+    resolution: {integrity: sha512-vx9ZPDF5HcU9up3Jgt3G62dMUfZEdk6tLyBAHYAG4F4n73vpaA7J5hdncDI/lS9Vm7GA/FPlbOmh9TrDZROTpg==}
+    peerDependencies:
+      vue: ^3.5.0
+    dependencies:
+      vue: 3.5.13(typescript@5.7.3)
+    dev: false
 
   /abbrev@3.0.0:
     resolution: {integrity: sha512-+/kfrslGQ7TNV2ecmQwMJj/B65g5KVq1/L3SGVZ3tCYGqlzFuFCGBZJtMP99wH3NpEUyAjn0zPdPUg0D+DwrOA==}

@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.0.8",
+    "@vueuse/core": "^13.2.0",
     "iconify-icon": "^2.3.0",
     "nanoid": "^5.1.5",
     "perfect-freehand": "^1.2.2",

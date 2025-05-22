@@ -7,6 +7,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from "vue"
 import { RectangleLayer } from "@/types/canvas.ts"
 import { colorToCss } from "@/utils/canvasUtil.ts";
 interface RectangleProps {
@@ -18,7 +19,7 @@ interface RectangleProps {
 
 const props = defineProps<RectangleProps>()
 
-const { fill } = props?.layer ?? {}
+const fill = computed(() => props.layer?.fill)
 
 
 const emit = defineEmits<{

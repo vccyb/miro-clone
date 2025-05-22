@@ -11,6 +11,7 @@ create table
     author_name text not null,
     image_url text default null,
     team_id uuid default null,
+    content jsonb default '{}'::jsonb, -- 添加白板内容字段，使用JSONB类型
     
     primary key (id)
   );

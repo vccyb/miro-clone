@@ -7,6 +7,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from "vue"
 import { EllipaseLayer } from "@/types/canvas.ts";
 import { colorToCss } from "@/utils/canvasUtil.ts";
 
@@ -17,7 +18,9 @@ interface EllipseProps {
 }
 const props = defineProps<EllipseProps>()
 
-const { fill } = props?.layer ?? {}
+const fill  = computed(() => {
+  return props.layer?.fill
+})
 
 
 

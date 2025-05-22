@@ -2,14 +2,7 @@
   <div>
     <info />
     <participants />
-    <toolbar
-      :canvasState="canvasState"
-      :setCanvasState="setCanvasState"
-      :canRedo="false"
-      :canUndo="false"
-      :undo="() => {}"
-      :redo="() => {}"
-    />
+    <toolbar :canvasState="canvasState" :setCanvasState="setCanvasState" />
     <selected-tools :camera="camera" @setLastUsedColor="() => {}"></selected-tools>
     <svg
       class="h-[100vh] w-[100vw]"
@@ -58,6 +51,8 @@ import PathDraft from '@/components/board/PathDraft.vue'
 import { useRoute } from 'vue-router'
 import { ref, provide, watch } from 'vue'
 
+import { useDebounceFn } from '@vueuse/core'
+
 // 内部方法
 import {
   colorToCss,
@@ -98,6 +93,10 @@ provide('canvasState', canvasState)
 
 const route = useRoute()
 const id = route.params.id
+
+
+const resizeFlag = ref<boolean>(false)
+const translateFlag = ref<boolean>(false)
 
 /** camera */
 
@@ -163,6 +162,11 @@ const onPointerUp = (event: MouseEvent) => {
     setCanvasState({ mode: CanvasMode.Pencil })
   } else if (canvasState.value.mode === CanvasMode.Inserting) {
     canvasStore.insertLayer(canvasState.value.layerType, point)
+  } else if (canvasState.value.mode === CanvasMode.Resizing) {
+    //
+    console.log('resize complete')
+    // canvasStore.saveToHistoryWithLast()
+    setCanvasState({ mode: CanvasMode.None })
   } else {
     // default up set mode to none
     setCanvasState({ mode: CanvasMode.None })
@@ -200,11 +204,15 @@ const handleLayerPointerDown = (event: PointerEvent, layerId: string) => {
     return
   }
 
+  translateFlag.value = true
+
+  const currentLayerIds = canvasStore.currentLayerIds
+
+
   event.stopPropagation()
   const point = pointEventTocavansPoint(event, camera.value)
 
   // update current layerId
-  const currentLayerIds = canvasStore.currentLayerIds
   if (currentLayerIds === null || !currentLayerIds.includes(layerId)) {
     // 说明是单选
     canvasStore.setCurrentLayerIds([layerId])
@@ -227,7 +235,7 @@ watch(
 /** resize handle */
 const handleResizeHandlePointerDown = (corner: Side, initialBounds: XYWH) => {
   // console.log("canvas[id] handleResizeHandlePointerDown", corner, initialBounds);
-
+  resizeFlag.value = true
   // update state to resizing
   setCanvasState({
     mode: CanvasMode.Resizing,
@@ -275,6 +283,11 @@ const resizeSelectedLayer = (point: Point) => {
     return
   }
 
+  if(resizeFlag.value) {
+    canvasStore.saveToHistory()
+    resizeFlag.value = false
+  }
+
   const bounds = resizeBounds(canvasState.value.initialBounds, canvasState.value.corner, point)
   const currentLayerIds = canvasStore.currentLayerIds
   if (!currentLayerIds || currentLayerIds.length > 1) return
@@ -286,6 +299,11 @@ const translateSelectedLayer = (point: Point) => {
   // if not translating, return
   if (canvasState.value.mode !== CanvasMode.Translating) {
     return
+  }
+
+  if(translateFlag.value) {
+    canvasStore.saveToHistory()
+    translateFlag.value = false
   }
 
   // calculate offset  计算 鼠标移动相对于当前的偏移
