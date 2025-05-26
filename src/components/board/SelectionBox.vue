@@ -41,7 +41,7 @@
         cursor: 'nesw-resize',
         width: `${HANDLE_WIDTH}px`,
         height: `${HANDLE_WIDTH}px`,
-        transform: `translate(${bounds?.x + bounds?.width - HANDLE_WIDTH / 2}px,${bounds?.y - HANDLE_WIDTH / 2}px)`,
+        transform: `translate(${bounds?.x + bounds?.width - HANDLE_WIDTH / 2}px,${pnpbounds?.y - HANDLE_WIDTH / 2}px)`,
       }"
       @pointerdown="(e) => handlePointerDown(e, Side.Top + Side.Right, bounds)"
     ></rect>
