@@ -19,7 +19,7 @@
 <script setup lang="ts">
 import RootLayout from '@/components/Layout/RootLayout.vue'
 import AuthLayout from '@/components/Layout/AuthLayout.vue'
-import Boardlayout from '@/components/Layout/Boardlayout.vue'
+import Boardlayout from '@/components/Layout/BoardLayout.vue'
 import { NMessageProvider, NDialogProvider } from 'naive-ui'
 import { onMounted, computed } from 'vue'
 import { useAuthStore } from '@/stores/auth'

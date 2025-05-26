@@ -8,7 +8,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue"
-import { EllipaseLayer } from "@/types/canvas.ts";
+import type { EllipaseLayer } from "@/types/canvas.ts";
 import { colorToCss } from "@/utils/canvasUtil.ts";
 
 interface EllipseProps {
@@ -29,7 +29,7 @@ const emit = defineEmits<{
 }>()
 
 // pointer Down event
-const handlePointerDown = (event: PointEvent) => {
+const handlePointerDown = (event: PointerEvent) => {
   // console.log("Rectangle layerPointerDown", event, props.id);
   emit('layerPointerDown', event, props.id)
 }
