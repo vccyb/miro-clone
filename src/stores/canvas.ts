@@ -91,8 +91,6 @@ export const useCanvasStore = defineStore('canvas-board', () => {
     }
   }
 
-
-
   const lastUsedColor = ref<Color>({
     r: 0,
     g: 0,
@@ -151,7 +149,6 @@ export const useCanvasStore = defineStore('canvas-board', () => {
   }
 
   const updateLayerWithBoundsAndId = (layerId: string, bounds: XYWH) => {
-
     const layer = layers.value[layerId]
     if (!layer) return
     layer.x = bounds.x
@@ -248,18 +245,46 @@ export const useCanvasStore = defineStore('canvas-board', () => {
     }
   }
 
-  const loadContent = (contentString: string) => {
+  const loadContent = (contentString: string | object) => {
+
+    if(contentString instanceof  Object) {
+      layerIds.value = contentString?.layerIds ?? []
+      layers.value = contentString?.layers ?? {}
+      return
+    }
+
     // string -> json
-    const contentObject = JSON.parse(contentString)
+    let contentObject = JSON.parse(contentString)
     // json -> layerIds and layers
-    const layerIdsJson = contentObject.layerIds
-    const layersJson = contentObject.layers
+    const layerIdsJson = contentObject?.layerIds
+    const layersJson = contentObject?.layers
     const networkLayerIds = JSON.parse(layerIdsJson)
     const networkLayers = JSON.parse(layersJson)
     // set layerIds and layers
     layerIds.value = networkLayerIds
     layers.value = networkLayers
   }
+
+  const clearStore = () => {
+    layerIds.value = []
+    layers.value = {}
+    currentLayerIds.value = null
+    lastUsedColor.value = {
+      r: 0,
+      g: 0,
+      b: 0,
+    }
+    pencilState.value = {
+      pencilDraft: [],
+      pencilColor: null,
+    }
+    history.value = {
+      past: [],
+      future: [],
+    }
+  }
+
+
 
   return {
     layerIds,
@@ -291,5 +316,8 @@ export const useCanvasStore = defineStore('canvas-board', () => {
     undo,
     redo,
     saveToHistory,
+
+    // clear
+    clearStore
   }
 })

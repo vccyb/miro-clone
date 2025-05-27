@@ -145,6 +145,7 @@ import { encodeId } from '../utils/encoding'
 // 导入自定义组件
 import FavoriteButton from '@/components/BoardActions/FavoriteButton.vue'
 import MoreMenu from '@/components/BoardActions/MoreMenu.vue'
+import { useCanvasStore } from '@/stores/canvas.ts'
 
 const router = useRouter()
 const message = useMessage()
@@ -336,12 +337,17 @@ const pagination = reactive({
   }
 })
 
+
+const canvasStore = useCanvasStore()
+
 // 处理创建新白板
 const handleCreateNew = async () => {
   loading.value = true
   try {
     // 创建一个默认标题为 Untitled 的白板
     const newBoard = await createBoard('Untitled')
+
+    canvasStore.clearStore()
 
     if (newBoard) {
       message.success('白板创建成功')
